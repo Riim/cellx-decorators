@@ -17,23 +17,36 @@ import { EventEmitter } from 'cellx';
 import { observable, computed } from 'cellx-decorators';
 import formatPhone from '../../utils/formatPhone';
 
-export default class User extends EventEmitter {
-	id = void 0;
+class User extends EventEmitter {
+    id = void 0;
 
-	@observable firstName = void 0;
-	@observable lastName = void 0;
-	@computed fullName = function() {
-		return [this.firstName, this.lastName].join(' ').trim() || void 0;
-	};
-	@computed nameInitials = function() {
-		return ((this.firstName || '').charAt(0) + (this.lastName || '').charAt(0)).toUpperCase();
-	};
+    @observable firstName = void 0;
+    @observable lastName = void 0;
+    @computed fullName = function() {
+        return [this.firstName, this.lastName].join(' ').trim() || void 0;
+    };
 
-	@observable phone = void 0;
-	@computed formattedPhone = function() {
-		return this.phone && formatPhone(this.phone);
-	};
+    @observable phone = void 0;
+
+	// computed and writable property
+    @computed({ // options
+		put(value) {
+			this.phone = value.replace(/\D+/g, '');
+		}
+	}) formattedPhone = function() {
+        return this.phone && formatPhone(this.phone);
+    };
 }
+
+let u = new User();
+
+u.phone = '79161234567';
+console.log(u.formattedPhone);
+// => '+7 (916) 123-45-67'
+
+u.formattedPhone = '+7 (916) 765-43-21';
+console.log(u.phone);
+// => '79167654321'
 ```
 
 ### Webpack config
