@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<script src="node_modules/cellx/dist/cellx.js"></script>
+	<script src="dist/cellx-decorators.js"></script>
+</head>
+<body>
+
+<script type="text/esnext">
+
+let { EventEmitter } = cellx;
+let { observable, computed } = window['cellx-decorators'];
+
+class User extends EventEmitter {
+    id = void 0;
+
+    @observable firstName = void 0;
+    @observable lastName = void 0;
+    @computed fullName = function() {
+        return [this.firstName, this.lastName].join(' ').trim() || void 0;
+    };
+
+    @observable phone = void 0;
+
+	// computed and writable property
+    @computed({ // options
+		put(value) {
+			this.phone = value.replace(/\D+/g, '');
+		}
+	}) formattedPhone = function() {
+        return this.phone && formatPhone(this.phone);
+    };
+}
+
+let u = new User();
+
+u.phone = '79161234567';
+console.log(u.formattedPhone);
+// => '+7 (916) 123-45-67'
+
+u.formattedPhone = '+7 (916) 765-43-21';
+console.log(u.phone);
+// => '79167654321'
+
+
+
+
+
+
+
+
+
+
+function formatPhone(phone) {
+	let original = phone;
+
+	if (/^\s*(?:(?:\+\s*)?\d+\s*)?(?:\(\s*\d{3}\s*\))?\d[\x20\.\-\d]*$/.test(phone)) {
+		phone = phone.replace(/[\x20\.\-\(\)]+/g, '');
+
+		let plus = phone[0] == '+';
+
+		if (plus) {
+			phone = phone.slice(1);
+		}
+
+		let length = phone.length;
+
+		if (length == 10) {
+			phone = '7' + phone;
+
+			plus = true;
+			length = 11;
+		}
+
+		if (length >= 11) {
+			if (!plus && length == 11 && (phone[0] == '8' || phone[0] == '7')) {
+				phone = '7' + phone.slice(1);
+				plus = true;
+			}
+
+			return `${ plus ? '+' : '' }${ phone.slice(0, -10) } (${ phone.slice(-10, -7) }) ${ phone.slice(-7, -4) }-${
+				phone.slice(-4, -2) }-${ phone.slice(-2) }`;
+		}
+	}
+
+	return original;
+}
+
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+<script>
+
+Array.prototype.forEach.call(document.querySelectorAll('script[type="text/esnext"]'), function(script) {
+	babel.run(script.innerHTML, {
+		optional: ['es7.classProperties', 'es7.decorators']
+	});
+});
+
+</script>
+
+</body>
+</html>

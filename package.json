@@ -1,9 +1,10 @@
 {
   "name": "cellx-decorators",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "",
-  "main": "index.js",
+  "main": "dist/cellx-decorators.js",
   "scripts": {
+    "build": "node_modules/.bin/webpack src/cellx-decorators.js dist/cellx-decorators.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -16,7 +17,11 @@
     "url": "https://github.com/Riim/cellx-decorators/issues"
   },
   "homepage": "https://github.com/Riim/cellx-decorators#readme",
+  "devDependencies": {
+    "cellx": "^1.6.27",
+    "webpack": "^1.13.1"
+  },
   "peerDependencies": {
-    "cellx": "^1.6.26"
+    "cellx": "^1.6.27"
   }
 }
