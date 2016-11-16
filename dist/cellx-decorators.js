@@ -56,27 +56,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var cellx = __webpack_require__(1);
 
-	function observable(target, name, desc, opts) {
-		if (arguments.length == 1) {
-			opts = target;
+	function optionifyCellDecorator(decorator) {
+		return function(target, name, desc, opts) {
+			if (arguments.length == 1) {
+				opts = target;
 
-			return function(target, name, desc) {
-				return observable(target, name, desc, opts);
-			};
-		}
+				return function(target, name, desc) {
+					return decorator(target, name, desc, opts);
+				};
+			}
 
-		if (!opts) {
-			opts = {};
-		}
+			return decorator(target, name, desc, opts);
+		};
+	}
 
-		var value = desc.initializer();
-
-		if (typeof value == 'function') {
-			throw new TypeError('Property value cannot be a function');
-		}
-
-		var privateName = '_' + name;
-
+	function createCellDescriptor(target, privateName, desc, value, opts) {
 		target[privateName] = cellx(value, opts);
 
 		return {
@@ -92,49 +86,29 @@ return /******/ (function(modules) { // webpackBootstrap
 		};
 	}
 
-	function computed(target, name, desc, opts) {
-		if (arguments.length == 1) {
-			opts = target;
+	exports.observable = optionifyCellDecorator(function observable(target, name, desc, opts) {
+		var value = desc.initializer();
 
-			return function(target, name, desc) {
-				return computed(target, name, desc, opts);
-			};
+		if (typeof value == 'function') {
+			throw new TypeError('Property value cannot be a function');
 		}
 
+		return createCellDescriptor(target, '_' + name, desc, value, opts || {});
+	});
+
+	exports.computed = optionifyCellDecorator(function computed(target, name, desc, opts) {
 		var value = desc.initializer();
 
 		if (typeof value != 'function') {
 			throw new TypeError('Property value must be a function');
 		}
 
-		if (!opts) {
-			opts = {};
-		}
+		return createCellDescriptor(target, '_' + name, desc, value, opts || {});
+	});
 
-		var privateName = '_' + name;
-
-		target[privateName] = cellx(value, opts);
-
-		var descriptor = {
-			configurable: true,
-			enumerable: desc.enumerable,
-
-			get: function() {
-				return this[privateName]();
-			}
-		};
-
-		if (opts.put) {
-			descriptor.set = function(value) {
-				this[privateName](value);
-			};
-		}
-
-		return descriptor;
-	}
-
-	exports.observable = observable;
-	exports.computed = computed;
+	exports.cell = optionifyCellDecorator(function cell(target, name, desc, opts) {
+		return createCellDescriptor(target, '_' + name, desc, desc.initializer(), opts || {});
+	});
 
 
 /***/ },
