@@ -1,6 +1,6 @@
 {
   "name": "cellx-decorators",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "",
   "main": "dist/cellx-decorators.js",
   "scripts": {
@@ -20,7 +20,7 @@
   "devDependencies": {
     "webpack": "^1.13.3"
   },
-  "peerDependencies": {
-    "cellx": "^1.6.73"
+  "dependencies": {
+    "cellx": "^1.6.74"
   }
 }
