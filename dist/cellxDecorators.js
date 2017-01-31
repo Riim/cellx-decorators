@@ -1,5 +1,11 @@
 "use strict";
 var cellx_1 = require("cellx");
+var assign = Object.assign || function (target, source) {
+    for (var name_1 in source) {
+        target[name_1] = source[name_1];
+    }
+    return target;
+};
 /**
  * Babel:
  * desc с добавленным initializer.
@@ -19,35 +25,14 @@ function cellDecorator(targetOrOptions, name, desc, opts) {
         configurable: true,
         enumerable: desc ? desc.enumerable : true,
         get: function () {
-            var cell = this[privateName];
-            if (cell) {
-                return cell.get();
-            }
-            if (opts) {
-                if (opts['owner'] === undefined) {
-                    opts = { __proto__: opts, owner: this };
-                }
-            }
-            else {
-                opts = { owner: this };
-            }
-            return (this[privateName] = new cellx_1.Cell(desc.initializer(), opts)).get();
+            return (this[privateName] || (this[privateName] = new cellx_1.Cell(desc.initializer(), opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }))).get();
         },
         set: function (value) {
-            var cell = this[privateName];
-            if (cell) {
-                cell.set(value);
+            if (this[privateName]) {
+                this[privateName].set(value);
             }
             else {
-                if (opts) {
-                    if (opts['owner'] === undefined) {
-                        opts = { __proto__: opts, owner: this };
-                    }
-                }
-                else {
-                    opts = { owner: this };
-                }
-                this[privateName] = new cellx_1.Cell(value, opts);
+                this[privateName] = new cellx_1.Cell(value, opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this });
             }
         }
     };
