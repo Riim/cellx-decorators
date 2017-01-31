@@ -14,9 +14,9 @@ let assign: (target: Object, source: Object) => Object = (Object as any).assign 
  *
  * Typescript:
  * desc - undefined или результат предыдущего декоратора.
- * Результат `any | void`: https://github.com/Microsoft/TypeScript/issues/8063
+ * Результат `'void' or 'any'`: https://github.com/Microsoft/TypeScript/issues/8063
  */
-function cellDecorator(targetOrOptions: Object, name?: string, desc?: PropertyDescriptor, opts?: Object): any | void {
+function cellDecorator(targetOrOptions: Object, name?: string, desc?: PropertyDescriptor, opts?: Object): any {
 	if (arguments.length == 1) {
 		return (target: Object, name: string, desc?: PropertyDescriptor): PropertyDescriptor | void =>
 			cellDecorator(target, name, desc, targetOrOptions);
@@ -30,7 +30,7 @@ function cellDecorator(targetOrOptions: Object, name?: string, desc?: PropertyDe
 
 		get(): any {
 			return (this[privateName] || (this[privateName] = new Cell(
-				(desc as any).initializer(),
+				desc ? (desc as any).initializer() : undefined,
 				opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
 			))).get();
 		},

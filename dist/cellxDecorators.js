@@ -12,7 +12,7 @@ var assign = Object.assign || function (target, source) {
  *
  * Typescript:
  * desc - undefined или результат предыдущего декоратора.
- * Результат `any | void`: https://github.com/Microsoft/TypeScript/issues/8063
+ * Результат `'void' or 'any'`: https://github.com/Microsoft/TypeScript/issues/8063
  */
 function cellDecorator(targetOrOptions, name, desc, opts) {
     if (arguments.length == 1) {
@@ -25,7 +25,7 @@ function cellDecorator(targetOrOptions, name, desc, opts) {
         configurable: true,
         enumerable: desc ? desc.enumerable : true,
         get: function () {
-            return (this[privateName] || (this[privateName] = new cellx_1.Cell(desc.initializer(), opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }))).get();
+            return (this[privateName] || (this[privateName] = new cellx_1.Cell(desc ? desc.initializer() : undefined, opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }))).get();
         },
         set: function (value) {
             if (this[privateName]) {
