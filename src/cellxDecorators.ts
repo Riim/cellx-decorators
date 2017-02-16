@@ -10,11 +10,11 @@ let assign: (target: Object, source: Object) => Object = (Object as any).assign 
 
 /**
  * Babel:
- * desc с добавленным initializer.
+ * desc с добавленным initializer (если значение декарируемого свойства не задано, то initializer равен null).
  *
  * Typescript:
  * desc - undefined или результат предыдущего декоратора.
- * Результат `'void' or 'any'`: https://github.com/Microsoft/TypeScript/issues/8063
+ * Результат `'void' or 'any'`: https://github.com/Microsoft/TypeScript/issues/8063.
  */
 function cellDecorator(targetOrOptions: Object, name?: string, desc?: PropertyDescriptor, opts?: Object): any {
 	if (arguments.length == 1) {
@@ -30,19 +30,40 @@ function cellDecorator(targetOrOptions: Object, name?: string, desc?: PropertyDe
 
 		get(): any {
 			return (this[privateName] || (this[privateName] = new Cell(
-				desc ? (desc as any).initializer() : undefined,
+				desc && ( // При typescript desc будет undefined, если это первый декоратор свойства.
+					(desc as any).initializer ?
+						(desc as any).initializer() : // Если initializer есть, то просто вызываем его.
+
+						// Если initializer нет, то это либо babel с initializer == null,
+						// либо typescript с desc предудущего декоратора.
+						// В обоих случаях читаем value, при babel прочитаем undefined,
+						// при typescript значение desc предыдущего декоратора
+						// (desc предыдущего декоратора должен быть именно DataDescriptor-ом.
+						desc.value
+				),
 				opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
 			))).get();
 		},
 
 		set(value: any) {
-			if (this[privateName]) {
+			if (desc && (desc as any).initializer !== undefined) { // babel
+				if (!this[privateName]) {
+					this[privateName] = new Cell(
+						(desc as any).initializer ? (desc as any).initializer() : undefined,
+						opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
+					);
+				}
+
 				this[privateName].set(value);
-			} else {
-				this[privateName] = new Cell(
-					value,
-					opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
-				);
+			} else { // typescript
+				if (this[privateName]) {
+					this[privateName].set(value);
+				} else {
+					this[privateName] = new Cell(
+						value,
+						opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
+					);
+				}
 			}
 		}
 	};

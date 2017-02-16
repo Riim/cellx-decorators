@@ -1,6 +1,6 @@
 {
   "name": "cellx-decorators",
-  "version": "1.2.4",
+  "version": "1.2.6",
   "description": "",
   "main": "dist/cellxDecorators.js",
   "typings": "dist/cellxDecorators.d.ts",
@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/Riim/cellx-decorators#readme",
   "devDependencies": {
-    "typescript": "^2.1.5"
+    "typescript": "^2.2.0"
   },
   "dependencies": {
     "cellx": "^1.6.92"
