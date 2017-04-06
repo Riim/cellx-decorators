@@ -1,4 +1,4 @@
-import { Cell } from 'cellx';
+import { ICellOptions, Cell } from 'cellx';
 
 let assign: (target: Object, source: Object) => Object = (Object as any).assign || function(target, source) {
 	for (let name in source) {
@@ -16,10 +16,17 @@ let assign: (target: Object, source: Object) => Object = (Object as any).assign 
  * desc - undefined или результат предыдущего декоратора.
  * Результат `'void' or 'any'`: https://github.com/Microsoft/TypeScript/issues/8063.
  */
-function cellDecorator(targetOrOptions: Object, name?: string, desc?: PropertyDescriptor, opts?: Object): any {
+function cellDecorator<T>(target: Object, name: string, desc?: PropertyDescriptor): any;
+function cellDecorator<T>(opts: ICellOptions<T>): (target: Object, name: string, desc?: PropertyDescriptor) => any;
+function cellDecorator<T>(
+	targetOrOptions: Object | ICellOptions<T>,
+	name?: string,
+	desc?: PropertyDescriptor,
+	opts?: ICellOptions<T>
+): any {
 	if (arguments.length == 1) {
-		return (target: Object, name: string, desc?: PropertyDescriptor): PropertyDescriptor | void =>
-			cellDecorator(target, name, desc, targetOrOptions);
+		return (target: Object, name: string, desc?: PropertyDescriptor): any =>
+			(cellDecorator as any)(target, name, desc, targetOrOptions);
 	}
 
 	let privateName = '_' + name;
