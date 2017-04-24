@@ -14,6 +14,7 @@ function cellDecorator(targetOrOptions, name, desc, opts) {
         };
     }
     var privateName = '_' + name;
+    targetOrOptions[privateName] = undefined;
     return {
         configurable: true,
         enumerable: desc ? desc.enumerable : true,
@@ -24,7 +25,7 @@ function cellDecorator(targetOrOptions, name, desc, opts) {
                 // либо typescript с desc предудущего декоратора.
                 // В обоих случаях читаем value, при babel прочитаем undefined,
                 // при typescript значение desc предыдущего декоратора
-                // (desc предыдущего декоратора должен быть именно DataDescriptor-ом.
+                // (desc предыдущего декоратора должен быть именно DataDescriptor-ом).
                 desc.value), opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }))).get();
         },
         set: function (value) {
