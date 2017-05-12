@@ -16,8 +16,9 @@ let assign: (target: Object, source: Object) => Object = (Object as any).assign 
  * desc - undefined или результат предыдущего декоратора.
  * Результат `'void' or 'any'`: https://github.com/Microsoft/TypeScript/issues/8063.
  */
-function cellDecorator<T>(target: Object, name: string, desc?: PropertyDescriptor): any;
-function cellDecorator<T>(opts: ICellOptions<T>): (target: Object, name: string, desc?: PropertyDescriptor) => any;
+function cellDecorator<T = any>(target: Object, name: string, desc?: PropertyDescriptor): any;
+function cellDecorator<T = any>(opts: ICellOptions<T>):
+	(target: Object, name: string, desc?: PropertyDescriptor) => any;
 function cellDecorator<T>(
 	targetOrOptions: Object | ICellOptions<T>,
 	name?: string,
