@@ -69,10 +69,16 @@ function cellDecorator<T>(
 				if (this[privateName]) {
 					this[privateName].set(value);
 				} else {
+					let isFn = typeof value == 'function';
+
 					this[privateName] = new Cell(
-						value,
+						isFn ? value : undefined,
 						opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
 					);
+
+					if (!isFn) {
+						this[privateName].set(value);
+					}
 				}
 			}
 		}

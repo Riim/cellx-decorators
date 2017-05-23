@@ -40,7 +40,11 @@ function cellDecorator(targetOrOptions, name, desc, opts) {
                     this[privateName].set(value);
                 }
                 else {
-                    this[privateName] = new cellx_1.Cell(value, opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this });
+                    var isFn = typeof value == 'function';
+                    this[privateName] = new cellx_1.Cell(isFn ? value : undefined, opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this });
+                    if (!isFn) {
+                        this[privateName].set(value);
+                    }
                 }
             }
         }
