@@ -9,12 +9,30 @@ let assign: (target: Object, source: Object) => Object = (Object as any).assign 
 };
 
 /**
- * Babel:
- * desc с добавленным initializer (если значение декарируемого свойства не задано, то initializer равен null).
+ * Babel PropertyDecorator arguments:
+ * prototype
+ * 'name'
+ * { configurable: false
+ *   enumerable: true
+ *   initializer: function initializer() | null
+ *   writable: true }
  *
- * Typescript:
- * desc - undefined или результат предыдущего декоратора.
+ * Eсли значение декарируемого свойства не задано, то initializer будет null.
+ *
+ * Typescript PropertyDecorator arguments:
+ * prototype
+ * 'name'
+ * undefined | (результат предыдущего декоратора)
+ *
  * Результат `'void' or 'any'`: https://github.com/Microsoft/TypeScript/issues/8063.
+ *
+ * AccessorDecorator arguments:
+ * prototype
+ * 'name'
+ * { configurable: true
+ *   enumerable: true
+ *   get: function ()
+ *   set: undefined }
  */
 function cellDecorator<T = any>(target: Object, name: string, desc?: PropertyDescriptor): any;
 function cellDecorator<T = any>(opts: ICellOptions<T>):
@@ -30,55 +48,39 @@ function cellDecorator<T>(
 			(cellDecorator as any)(target, name, desc, targetOrOptions);
 	}
 
-	let privateName = '_' + name;
+	let cellName = '_' + name;
 
-	targetOrOptions[privateName] = undefined;
+	targetOrOptions[cellName] = undefined;
 
 	return {
 		configurable: true,
 		enumerable: desc ? desc.enumerable : true,
 
 		get(): any {
-			return (this[privateName] || (this[privateName] = new Cell(
-				desc && ( // При typescript desc будет undefined, если это первый декоратор свойства.
-					(desc as any).initializer ?
-						(desc as any).initializer() : // Если initializer есть, то просто вызываем его.
-
-						// Если initializer нет, то это либо babel с initializer == null,
-						// либо typescript с desc предудущего декоратора.
-						// В обоих случаях читаем value, при babel прочитаем undefined,
-						// при typescript значение desc предыдущего декоратора
-						// (desc предыдущего декоратора должен быть именно DataDescriptor-ом).
-						desc.value
-				),
+			return (this[cellName] || (this[cellName] = new Cell(
+				desc && (desc.get || ((desc as any).initializer ? (desc as any).initializer() : desc.value)),
 				opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
 			))).get();
 		},
 
-		set(value: any) {
-			if (desc && (desc as any).initializer !== undefined) { // babel
-				if (!this[privateName]) {
-					this[privateName] = new Cell(
-						(desc as any).initializer ? (desc as any).initializer() : undefined,
-						opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
-					);
-				}
+		set: desc && desc.set || function(value: any) {
+			if (this[cellName]) {
+				this[cellName].set(value);
+			} else if (desc) {
+				(this[cellName] = new Cell(
+					desc.get || ((desc as any).initializer ? (desc as any).initializer() : desc.value),
+					opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
+				)).set(value);
+			} else {
+				let isFn = typeof value == 'function';
 
-				this[privateName].set(value);
-			} else { // typescript
-				if (this[privateName]) {
-					this[privateName].set(value);
-				} else {
-					let isFn = typeof value == 'function';
+				this[cellName] = new Cell(
+					isFn ? value : undefined,
+					opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
+				);
 
-					this[privateName] = new Cell(
-						isFn ? value : undefined,
-						opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
-					);
-
-					if (!isFn) {
-						this[privateName].set(value);
-					}
+				if (!isFn) {
+					this[cellName].set(value);
 				}
 			}
 		}

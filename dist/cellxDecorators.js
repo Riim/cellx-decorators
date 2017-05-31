@@ -13,38 +13,26 @@ function cellDecorator(targetOrOptions, name, desc, opts) {
             return cellDecorator(target, name, desc, targetOrOptions);
         };
     }
-    var privateName = '_' + name;
-    targetOrOptions[privateName] = undefined;
+    var cellName = '_' + name;
+    targetOrOptions[cellName] = undefined;
     return {
         configurable: true,
         enumerable: desc ? desc.enumerable : true,
         get: function () {
-            return (this[privateName] || (this[privateName] = new cellx_1.Cell(desc && (desc.initializer ?
-                desc.initializer() :
-                // Если initializer нет, то это либо babel с initializer == null,
-                // либо typescript с desc предудущего декоратора.
-                // В обоих случаях читаем value, при babel прочитаем undefined,
-                // при typescript значение desc предыдущего декоратора
-                // (desc предыдущего декоратора должен быть именно DataDescriptor-ом).
-                desc.value), opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }))).get();
+            return (this[cellName] || (this[cellName] = new cellx_1.Cell(desc && (desc.get || (desc.initializer ? desc.initializer() : desc.value)), opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }))).get();
         },
-        set: function (value) {
-            if (desc && desc.initializer !== undefined) {
-                if (!this[privateName]) {
-                    this[privateName] = new cellx_1.Cell(desc.initializer ? desc.initializer() : undefined, opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this });
-                }
-                this[privateName].set(value);
+        set: desc && desc.set || function (value) {
+            if (this[cellName]) {
+                this[cellName].set(value);
+            }
+            else if (desc) {
+                (this[cellName] = new cellx_1.Cell(desc.get || (desc.initializer ? desc.initializer() : desc.value), opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this })).set(value);
             }
             else {
-                if (this[privateName]) {
-                    this[privateName].set(value);
-                }
-                else {
-                    var isFn = typeof value == 'function';
-                    this[privateName] = new cellx_1.Cell(isFn ? value : undefined, opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this });
-                    if (!isFn) {
-                        this[privateName].set(value);
-                    }
+                var isFn = typeof value == 'function';
+                this[cellName] = new cellx_1.Cell(isFn ? value : undefined, opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this });
+                if (!isFn) {
+                    this[cellName].set(value);
                 }
             }
         }
