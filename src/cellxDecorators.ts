@@ -34,10 +34,10 @@ let assign: (target: Object, source: Object) => Object = (Object as any).assign 
  *   get: function ()
  *   set: undefined }
  */
-function cellDecorator<T = any>(target: Object, name: string, desc?: PropertyDescriptor): any;
-function cellDecorator<T = any>(opts: ICellOptions<T>):
+function CellDecorator<T = any>(target: Object, name: string, desc?: PropertyDescriptor): any;
+function CellDecorator<T = any>(opts: ICellOptions<T>):
 	(target: Object, name: string, desc?: PropertyDescriptor) => any;
-function cellDecorator<T>(
+function CellDecorator<T>(
 	targetOrOptions: Object | ICellOptions<T>,
 	name?: string,
 	desc?: PropertyDescriptor,
@@ -45,7 +45,7 @@ function cellDecorator<T>(
 ): any {
 	if (arguments.length == 1) {
 		return (target: Object, name: string, desc?: PropertyDescriptor): any =>
-			(cellDecorator as any)(target, name, desc, targetOrOptions);
+			(CellDecorator as any)(target, name, desc, targetOrOptions);
 	}
 
 	let cellName = '_' + name;
@@ -59,7 +59,7 @@ function cellDecorator<T>(
 		get(): any {
 			return (this[cellName] || (this[cellName] = new Cell(
 				desc && (desc.get || ((desc as any).initializer ? (desc as any).initializer() : desc.value)),
-				opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
+				opts ? (opts.owner === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
 			))).get();
 		},
 
@@ -69,14 +69,14 @@ function cellDecorator<T>(
 			} else if (desc) {
 				(this[cellName] = new Cell(
 					desc.get || ((desc as any).initializer ? (desc as any).initializer() : desc.value),
-					opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
+					opts ? (opts.owner === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
 				)).set(value);
 			} else {
 				let isFn = typeof value == 'function';
 
 				this[cellName] = new Cell(
 					isFn ? value : undefined,
-					opts ? (opts['owner'] === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
+					opts ? (opts.owner === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
 				);
 
 				if (!isFn) {
@@ -87,8 +87,83 @@ function cellDecorator<T>(
 	};
 }
 
+function observableDecorator<T = any>(target: Object, name: string, desc?: PropertyDescriptor): any;
+function observableDecorator<T = any>(opts: ICellOptions<T>):
+	(target: Object, name: string, desc?: PropertyDescriptor) => any;
+function observableDecorator<T>(
+	targetOrOptions: Object | ICellOptions<T>,
+	name?: string,
+	desc?: PropertyDescriptor,
+	opts?: ICellOptions<T>
+): any {
+	if (arguments.length == 1) {
+		return (target: Object, name: string, desc?: PropertyDescriptor): any =>
+			(observableDecorator as any)(target, name, desc, targetOrOptions);
+	}
+
+	if (desc && (desc.get || (desc.value !== undefined && typeof desc.value == 'function'))) {
+		throw new TypeError('Invalid descriptor of observable property');
+	}
+
+	return (CellDecorator as any)(targetOrOptions, name as string, desc, opts);
+}
+
+function computedDecorator<T = any>(target: Object, name: string, desc?: PropertyDescriptor): any;
+function computedDecorator<T = any>(opts: ICellOptions<T>):
+	(target: Object, name: string, desc?: PropertyDescriptor) => any;
+function computedDecorator<T>(
+	targetOrOptions: Object | ICellOptions<T>,
+	name?: string,
+	desc?: PropertyDescriptor,
+	opts?: ICellOptions<T>
+): any {
+	if (arguments.length == 1) {
+		return (target: Object, name: string, desc?: PropertyDescriptor): any =>
+			(computedDecorator as any)(target, name, desc, targetOrOptions);
+	}
+
+	if (desc && desc.value !== undefined && typeof desc.value != 'function') {
+		throw new TypeError('Invalid descriptor of computed property');
+	}
+
+	desc = (CellDecorator as any)(targetOrOptions, name as string, desc, opts);
+	(desc as PropertyDescriptor).enumerable = false;
+
+	return desc;
+}
+
+function enumerableDecorator(target: Object, name: string, desc?: PropertyDescriptor): any {
+	if (desc) {
+		desc.enumerable = true;
+		return desc;
+	}
+
+	return {
+		configurable: true,
+		enumerable: true,
+		writable: true,
+		value: undefined
+	};
+}
+
+function nonEnumerableDecorator(target: Object, name: string, desc?: PropertyDescriptor): any {
+	if (desc) {
+		desc.enumerable = false;
+		return desc;
+	}
+
+	return {
+		configurable: true,
+		enumerable: false,
+		writable: true,
+		value: undefined
+	};
+}
+
 export {
-	cellDecorator as observable,
-	cellDecorator as computed,
-	cellDecorator as cell
+	CellDecorator as Cell,
+	observableDecorator as observable,
+	computedDecorator as computed,
+	enumerableDecorator as enumerable,
+	nonEnumerableDecorator as nonEnumerable
 };

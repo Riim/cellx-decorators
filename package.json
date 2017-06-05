@@ -1,6 +1,6 @@
 {
   "name": "cellx-decorators",
-  "version": "1.3.0",
+  "version": "1.4.2",
   "description": "",
   "main": "dist/cellxDecorators.js",
   "typings": "dist/cellxDecorators.d.ts",
@@ -22,6 +22,6 @@
     "typescript": "^2.3.4"
   },
   "dependencies": {
-    "cellx": "^1.7.10"
+    "cellx": "^1.7.11"
   }
 }

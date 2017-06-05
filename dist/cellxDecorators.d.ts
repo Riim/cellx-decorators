@@ -25,6 +25,12 @@ import { ICellOptions } from 'cellx';
  *   get: function ()
  *   set: undefined }
  */
-declare function cellDecorator<T = any>(target: Object, name: string, desc?: PropertyDescriptor): any;
-declare function cellDecorator<T = any>(opts: ICellOptions<T>): (target: Object, name: string, desc?: PropertyDescriptor) => any;
-export { cellDecorator as observable, cellDecorator as computed, cellDecorator as cell };
+declare function CellDecorator<T = any>(target: Object, name: string, desc?: PropertyDescriptor): any;
+declare function CellDecorator<T = any>(opts: ICellOptions<T>): (target: Object, name: string, desc?: PropertyDescriptor) => any;
+declare function observableDecorator<T = any>(target: Object, name: string, desc?: PropertyDescriptor): any;
+declare function observableDecorator<T = any>(opts: ICellOptions<T>): (target: Object, name: string, desc?: PropertyDescriptor) => any;
+declare function computedDecorator<T = any>(target: Object, name: string, desc?: PropertyDescriptor): any;
+declare function computedDecorator<T = any>(opts: ICellOptions<T>): (target: Object, name: string, desc?: PropertyDescriptor) => any;
+declare function enumerableDecorator(target: Object, name: string, desc?: PropertyDescriptor): any;
+declare function nonEnumerableDecorator(target: Object, name: string, desc?: PropertyDescriptor): any;
+export { CellDecorator as Cell, observableDecorator as observable, computedDecorator as computed, enumerableDecorator as enumerable, nonEnumerableDecorator as nonEnumerable };
