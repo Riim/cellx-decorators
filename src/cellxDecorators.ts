@@ -1,12 +1,13 @@
 import { ICellOptions, Cell } from 'cellx';
 
-let assign: (target: Object, source: Object) => Object = (Object as any).assign || function(target, source) {
-	for (let name in source) {
-		target[name] = source[name];
-	}
+let assign: (target: { [name: string]: any }, source: { [name: string]: any }) => Object =
+	(Object as any).assign || function(target, source) {
+		for (let name in source) {
+			target[name] = source[name];
+		}
 
-	return target;
-};
+		return target;
+	};
 
 /**
  * Babel PropertyDecorator arguments:
@@ -48,9 +49,9 @@ function CellDecorator<T>(
 			(CellDecorator as any)(target, name, desc, targetOrOptions);
 	}
 
-	let cellName = '_' + name;
+	let cellName = name + 'Cell';
 
-	targetOrOptions[cellName] = undefined;
+	(targetOrOptions as any)[cellName] = undefined;
 
 	return {
 		configurable: true,

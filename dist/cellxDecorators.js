@@ -13,7 +13,7 @@ function CellDecorator(targetOrOptions, name, desc, opts) {
             return CellDecorator(target, name, desc, targetOrOptions);
         };
     }
-    var cellName = '_' + name;
+    var cellName = name + 'Cell';
     targetOrOptions[cellName] = undefined;
     return {
         configurable: true,
