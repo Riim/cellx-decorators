@@ -7,6 +7,32 @@ var assign = Object.assign || function (target, source) {
     }
     return target;
 };
+function enumerableDecorator(target, name, desc) {
+    if (desc) {
+        desc.enumerable = true;
+        return desc;
+    }
+    return {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: undefined
+    };
+}
+exports.enumerable = enumerableDecorator;
+function nonEnumerableDecorator(target, name, desc) {
+    if (desc) {
+        desc.enumerable = false;
+        return desc;
+    }
+    return {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: undefined
+    };
+}
+exports.nonEnumerable = nonEnumerableDecorator;
 function CellDecorator(targetOrOptions, name, desc, opts) {
     if (arguments.length == 1) {
         return function (target, name, desc) {
@@ -14,7 +40,12 @@ function CellDecorator(targetOrOptions, name, desc, opts) {
         };
     }
     var cellName = name + 'Cell';
-    targetOrOptions[cellName] = undefined;
+    Object.defineProperty(targetOrOptions, cellName, {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: undefined
+    });
     return {
         configurable: true,
         enumerable: desc ? desc.enumerable : true,
@@ -65,29 +96,3 @@ function computedDecorator(targetOrOptions, name, desc, opts) {
     return desc;
 }
 exports.computed = computedDecorator;
-function enumerableDecorator(target, name, desc) {
-    if (desc) {
-        desc.enumerable = true;
-        return desc;
-    }
-    return {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        value: undefined
-    };
-}
-exports.enumerable = enumerableDecorator;
-function nonEnumerableDecorator(target, name, desc) {
-    if (desc) {
-        desc.enumerable = false;
-        return desc;
-    }
-    return {
-        configurable: true,
-        enumerable: false,
-        writable: true,
-        value: undefined
-    };
-}
-exports.nonEnumerable = nonEnumerableDecorator;

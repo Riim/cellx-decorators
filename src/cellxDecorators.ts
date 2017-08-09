@@ -9,6 +9,34 @@ let assign: (target: { [name: string]: any }, source: { [name: string]: any }) =
 		return target;
 	};
 
+function enumerableDecorator(target: Object, name: string, desc?: PropertyDescriptor): any {
+	if (desc) {
+		desc.enumerable = true;
+		return desc;
+	}
+
+	return {
+		configurable: true,
+		enumerable: true,
+		writable: true,
+		value: undefined
+	};
+}
+
+function nonEnumerableDecorator(target: Object, name: string, desc?: PropertyDescriptor): any {
+	if (desc) {
+		desc.enumerable = false;
+		return desc;
+	}
+
+	return {
+		configurable: true,
+		enumerable: false,
+		writable: true,
+		value: undefined
+	};
+}
+
 /**
  * Babel PropertyDecorator arguments:
  * prototype
@@ -51,7 +79,12 @@ function CellDecorator<T>(
 
 	let cellName = name + 'Cell';
 
-	(targetOrOptions as any)[cellName] = undefined;
+	Object.defineProperty(targetOrOptions, cellName, {
+		configurable: true,
+		enumerable: false,
+		writable: true,
+		value: undefined
+	});
 
 	return {
 		configurable: true,
@@ -133,38 +166,10 @@ function computedDecorator<T>(
 	return desc;
 }
 
-function enumerableDecorator(target: Object, name: string, desc?: PropertyDescriptor): any {
-	if (desc) {
-		desc.enumerable = true;
-		return desc;
-	}
-
-	return {
-		configurable: true,
-		enumerable: true,
-		writable: true,
-		value: undefined
-	};
-}
-
-function nonEnumerableDecorator(target: Object, name: string, desc?: PropertyDescriptor): any {
-	if (desc) {
-		desc.enumerable = false;
-		return desc;
-	}
-
-	return {
-		configurable: true,
-		enumerable: false,
-		writable: true,
-		value: undefined
-	};
-}
-
 export {
+	enumerableDecorator as enumerable,
+	nonEnumerableDecorator as nonEnumerable,
 	CellDecorator as Cell,
 	observableDecorator as observable,
-	computedDecorator as computed,
-	enumerableDecorator as enumerable,
-	nonEnumerableDecorator as nonEnumerable
+	computedDecorator as computed
 };
