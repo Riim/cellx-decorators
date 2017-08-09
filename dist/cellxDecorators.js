@@ -19,18 +19,18 @@ function CellDecorator(targetOrOptions, name, desc, opts) {
         configurable: true,
         enumerable: desc ? desc.enumerable : true,
         get: function () {
-            return (this[cellName] || (this[cellName] = new cellx_1.Cell(desc && (desc.get || (desc.initializer ? desc.initializer() : desc.value)), opts ? (opts.owner === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }))).get();
+            return (this[cellName] || (this[cellName] = new cellx_1.Cell(desc && (desc.get || (desc.initializer ? desc.initializer() : desc.value)), opts ? (opts.context === undefined ? assign({ context: this }, opts) : opts) : { context: this }))).get();
         },
         set: desc && desc.set || function (value) {
             if (this[cellName]) {
                 this[cellName].set(value);
             }
             else if (desc) {
-                (this[cellName] = new cellx_1.Cell(desc.get || (desc.initializer ? desc.initializer() : desc.value), opts ? (opts.owner === undefined ? assign({ owner: this }, opts) : opts) : { owner: this })).set(value);
+                (this[cellName] = new cellx_1.Cell(desc.get || (desc.initializer ? desc.initializer() : desc.value), opts ? (opts.context === undefined ? assign({ context: this }, opts) : opts) : { context: this })).set(value);
             }
             else {
                 var isFn = typeof value == 'function';
-                this[cellName] = new cellx_1.Cell(isFn ? value : undefined, opts ? (opts.owner === undefined ? assign({ owner: this }, opts) : opts) : { owner: this });
+                this[cellName] = new cellx_1.Cell(isFn ? value : undefined, opts ? (opts.context === undefined ? assign({ context: this }, opts) : opts) : { context: this });
                 if (!isFn) {
                     this[cellName].set(value);
                 }

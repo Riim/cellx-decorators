@@ -1,4 +1,4 @@
-import { ICellOptions, Cell } from 'cellx';
+import { Cell, ICellOptions } from 'cellx';
 
 let assign: (target: { [name: string]: any }, source: { [name: string]: any }) => Object =
 	(Object as any).assign || function(target, source) {
@@ -60,7 +60,7 @@ function CellDecorator<T>(
 		get(): any {
 			return (this[cellName] || (this[cellName] = new Cell(
 				desc && (desc.get || ((desc as any).initializer ? (desc as any).initializer() : desc.value)),
-				opts ? (opts.owner === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
+				opts ? (opts.context === undefined ? assign({ context: this }, opts) : opts) : { context: this }
 			))).get();
 		},
 
@@ -70,14 +70,14 @@ function CellDecorator<T>(
 			} else if (desc) {
 				(this[cellName] = new Cell(
 					desc.get || ((desc as any).initializer ? (desc as any).initializer() : desc.value),
-					opts ? (opts.owner === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
+					opts ? (opts.context === undefined ? assign({ context: this }, opts) : opts) : { context: this }
 				)).set(value);
 			} else {
 				let isFn = typeof value == 'function';
 
 				this[cellName] = new Cell(
 					isFn ? value : undefined,
-					opts ? (opts.owner === undefined ? assign({ owner: this }, opts) : opts) : { owner: this }
+					opts ? (opts.context === undefined ? assign({ context: this }, opts) : opts) : { context: this }
 				);
 
 				if (!isFn) {
