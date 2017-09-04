@@ -1,12 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var object_assign_polyfill_1 = require("@riim/object-assign-polyfill");
 var cellx_1 = require("cellx");
-var assign = Object.assign || function (target, source) {
-    for (var name_1 in source) {
-        target[name_1] = source[name_1];
-    }
-    return target;
-};
 function enumerableDecorator(target, name, desc) {
     if (desc) {
         desc.enumerable = true;
@@ -50,18 +45,18 @@ function CellDecorator(targetOrOptions, name, desc, opts) {
         configurable: true,
         enumerable: desc ? desc.enumerable : true,
         get: function () {
-            return (this[cellName] || (this[cellName] = new cellx_1.Cell(desc && (desc.get || (desc.initializer ? desc.initializer() : desc.value)), opts ? (opts.context === undefined ? assign({ context: this }, opts) : opts) : { context: this }))).get();
+            return (this[cellName] || (this[cellName] = new cellx_1.Cell(desc && (desc.get || (desc.initializer ? desc.initializer() : desc.value)), opts ? (opts.context === undefined ? object_assign_polyfill_1.assign({ context: this }, opts) : opts) : { context: this }))).get();
         },
         set: desc && desc.set || function (value) {
             if (this[cellName]) {
                 this[cellName].set(value);
             }
             else if (desc) {
-                (this[cellName] = new cellx_1.Cell(desc.get || (desc.initializer ? desc.initializer() : desc.value), opts ? (opts.context === undefined ? assign({ context: this }, opts) : opts) : { context: this })).set(value);
+                (this[cellName] = new cellx_1.Cell(desc.get || (desc.initializer ? desc.initializer() : desc.value), opts ? (opts.context === undefined ? object_assign_polyfill_1.assign({ context: this }, opts) : opts) : { context: this })).set(value);
             }
             else {
                 var isFn = typeof value == 'function';
-                this[cellName] = new cellx_1.Cell(isFn ? value : undefined, opts ? (opts.context === undefined ? assign({ context: this }, opts) : opts) : { context: this });
+                this[cellName] = new cellx_1.Cell(isFn ? value : undefined, opts ? (opts.context === undefined ? object_assign_polyfill_1.assign({ context: this }, opts) : opts) : { context: this });
                 if (!isFn) {
                     this[cellName].set(value);
                 }

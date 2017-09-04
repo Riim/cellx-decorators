@@ -1,13 +1,5 @@
+import { assign } from '@riim/object-assign-polyfill';
 import { Cell, ICellOptions } from 'cellx';
-
-let assign: (target: { [name: string]: any }, source: { [name: string]: any }) => Object =
-	(Object as any).assign || function(target, source) {
-		for (let name in source) {
-			target[name] = source[name];
-		}
-
-		return target;
-	};
 
 function enumerableDecorator(target: Object, name: string, desc?: PropertyDescriptor): any {
 	if (desc) {
