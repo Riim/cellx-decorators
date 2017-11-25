@@ -22,20 +22,19 @@ class User extends EventEmitter {
 
     @observable firstName = void 0;
     @observable lastName = void 0;
-    @computed fullName = function() {
+    @computed get fullName() {
         return [this.firstName, this.lastName].join(' ').trim() || void 0;
-    };
+    }
 
     @observable phone = void 0;
 
-	// computed and writable property
-    @computed({ // options
+    @computed({
 		put(value) {
 			this.phone = value.replace(/\D+/g, '');
 		}
-	}) formattedPhone = function() {
+	}) get formattedPhone() {
         return this.phone && formatPhone(this.phone);
-    };
+    }
 }
 
 let u = new User();

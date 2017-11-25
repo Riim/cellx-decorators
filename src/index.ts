@@ -1,7 +1,7 @@
 import { assign } from '@riim/object-assign-polyfill';
 import { Cell, ICellOptions } from 'cellx';
 
-function enumerableDecorator(
+function EnumerableDecorator(
 	target: Object,
 	propertyName: string,
 	propertyDesc?: PropertyDescriptor
@@ -19,7 +19,7 @@ function enumerableDecorator(
 	};
 }
 
-function nonEnumerableDecorator(
+function NonEnumerableDecorator(
 	target: Object,
 	propertyName: string,
 	propertyDesc?: PropertyDescriptor
@@ -53,7 +53,7 @@ function nonEnumerableDecorator(
  * 'propertyName'
  * undefined | результат предыдущего декоратора
  *
- * Результат `'void' or 'any'`: https://github.com/Microsoft/TypeScript/issues/8063.
+ * https://github.com/Microsoft/TypeScript/issues/8063.
  *
  * AccessorDecorator arguments:
  * prototype
@@ -143,15 +143,15 @@ function CellDecorator<T>(
 	};
 }
 
-function observableDecorator<T = any>(
+function ObservableDecorator<T = any>(
 	target: Object,
 	propertyName: string,
 	propertyDesc?: PropertyDescriptor
 ): any;
-function observableDecorator<T = any>(
+function ObservableDecorator<T = any>(
 	opts: ICellOptions<T>
 ): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-function observableDecorator<T>(
+function ObservableDecorator<T>(
 	targetOrOptions: Object | ICellOptions<T>,
 	propertyName?: string,
 	propertyDesc?: PropertyDescriptor,
@@ -159,7 +159,7 @@ function observableDecorator<T>(
 ): any {
 	if (arguments.length == 1) {
 		return (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any =>
-			(observableDecorator as any)(target, propertyName, propertyDesc, targetOrOptions);
+			(ObservableDecorator as any)(target, propertyName, propertyDesc, targetOrOptions);
 	}
 
 	if (
@@ -173,15 +173,15 @@ function observableDecorator<T>(
 	return (CellDecorator as any)(targetOrOptions, propertyName as string, propertyDesc, opts);
 }
 
-function computedDecorator<T = any>(
+function ComputedDecorator<T = any>(
 	target: Object,
 	propertyName: string,
 	propertyDesc?: PropertyDescriptor
 ): any;
-function computedDecorator<T = any>(
+function ComputedDecorator<T = any>(
 	opts: ICellOptions<T>
 ): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-function computedDecorator<T>(
+function ComputedDecorator<T>(
 	targetOrOptions: Object | ICellOptions<T>,
 	propertyName?: string,
 	propertyDesc?: PropertyDescriptor,
@@ -189,7 +189,7 @@ function computedDecorator<T>(
 ): any {
 	if (arguments.length == 1) {
 		return (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any =>
-			(computedDecorator as any)(target, propertyName, propertyDesc, targetOrOptions);
+			(ComputedDecorator as any)(target, propertyName, propertyDesc, targetOrOptions);
 	}
 
 	if (
@@ -212,9 +212,18 @@ function computedDecorator<T>(
 }
 
 export {
-	enumerableDecorator as enumerable,
-	nonEnumerableDecorator as nonEnumerable,
+	EnumerableDecorator as Enumerable,
+	EnumerableDecorator as enumerable,
+
+	NonEnumerableDecorator as NonEnumerable,
+	NonEnumerableDecorator as nonEnumerable,
+
 	CellDecorator as Cell,
-	observableDecorator as observable,
-	computedDecorator as computed
+	CellDecorator as cell,
+
+	ObservableDecorator as Observable,
+	ObservableDecorator as observable,
+
+	ComputedDecorator as Computed,
+	ComputedDecorator as computed
 };
