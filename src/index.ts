@@ -1,24 +1,6 @@
 import { assign } from '@riim/object-assign-polyfill';
 import { Cell, ICellOptions } from 'cellx';
 
-function EnumerableDecorator(
-	target: Object,
-	propertyName: string,
-	propertyDesc?: PropertyDescriptor
-): any {
-	if (propertyDesc) {
-		propertyDesc.enumerable = true;
-		return propertyDesc;
-	}
-
-	return {
-		configurable: true,
-		enumerable: true,
-		writable: true,
-		value: undefined
-	};
-}
-
 function NonEnumerableDecorator(
 	target: Object,
 	propertyName: string,
@@ -32,6 +14,24 @@ function NonEnumerableDecorator(
 	return {
 		configurable: true,
 		enumerable: false,
+		writable: true,
+		value: undefined
+	};
+}
+
+function EnumerableDecorator(
+	target: Object,
+	propertyName: string,
+	propertyDesc?: PropertyDescriptor
+): any {
+	if (propertyDesc) {
+		propertyDesc.enumerable = true;
+		return propertyDesc;
+	}
+
+	return {
+		configurable: true,
+		enumerable: true,
 		writable: true,
 		value: undefined
 	};
@@ -96,7 +96,8 @@ function CellDecorator<T>(
 		enumerable: propertyDesc ? propertyDesc.enumerable : true,
 
 		get(): any {
-			return (this[cellName] ||
+			return (
+				this[cellName] ||
 				(this[cellName] = new Cell(
 					propertyDesc &&
 						(propertyDesc.get ||
@@ -104,7 +105,9 @@ function CellDecorator<T>(
 								? (propertyDesc as any).initializer()
 								: propertyDesc.value)),
 					opts
-						? opts.context === undefined ? assign({ context: this }, opts) : opts
+						? opts.context === undefined
+							? assign({ context: this }, opts)
+							: opts
 						: { context: this }
 				))
 			).get();
@@ -122,20 +125,24 @@ function CellDecorator<T>(
 								? (propertyDesc as any).initializer()
 								: propertyDesc.value),
 						opts
-							? opts.context === undefined ? assign({ context: this }, opts) : opts
+							? opts.context === undefined
+								? assign({ context: this }, opts)
+								: opts
 							: { context: this }
 					)).set(value);
 				} else {
-					let isFn = typeof value == 'function';
+					let isFunction = typeof value == 'function';
 
 					this[cellName] = new Cell(
-						isFn ? value : undefined,
+						isFunction ? value : undefined,
 						opts
-							? opts.context === undefined ? assign({ context: this }, opts) : opts
+							? opts.context === undefined
+								? assign({ context: this }, opts)
+								: opts
 							: { context: this }
 					);
 
-					if (!isFn) {
+					if (!isFunction) {
 						this[cellName].set(value);
 					}
 				}
@@ -211,12 +218,13 @@ function ComputedDecorator<T>(
 	return propertyDesc;
 }
 
+// prettier-ignore
 export {
-	EnumerableDecorator as Enumerable,
-	EnumerableDecorator as enumerable,
-
 	NonEnumerableDecorator as NonEnumerable,
 	NonEnumerableDecorator as nonEnumerable,
+
+	EnumerableDecorator as Enumerable,
+	EnumerableDecorator as enumerable,
 
 	CellDecorator as Cell,
 	CellDecorator as cell,

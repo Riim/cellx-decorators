@@ -1,6 +1,6 @@
 import { ICellOptions } from 'cellx';
-declare function EnumerableDecorator(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
 declare function NonEnumerableDecorator(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
+declare function EnumerableDecorator(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
 /**
  * Babel PropertyDecorator arguments:
  * prototype
@@ -33,4 +33,4 @@ declare function ObservableDecorator<T = any>(target: Object, propertyName: stri
 declare function ObservableDecorator<T = any>(opts: ICellOptions<T>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
 declare function ComputedDecorator<T = any>(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
 declare function ComputedDecorator<T = any>(opts: ICellOptions<T>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-export { EnumerableDecorator as Enumerable, EnumerableDecorator as enumerable, NonEnumerableDecorator as NonEnumerable, NonEnumerableDecorator as nonEnumerable, CellDecorator as Cell, CellDecorator as cell, ObservableDecorator as Observable, ObservableDecorator as observable, ComputedDecorator as Computed, ComputedDecorator as computed };
+export { NonEnumerableDecorator as NonEnumerable, NonEnumerableDecorator as nonEnumerable, EnumerableDecorator as Enumerable, EnumerableDecorator as enumerable, CellDecorator as Cell, CellDecorator as cell, ObservableDecorator as Observable, ObservableDecorator as observable, ComputedDecorator as Computed, ComputedDecorator as computed };

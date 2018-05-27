@@ -2,20 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var object_assign_polyfill_1 = require("@riim/object-assign-polyfill");
 var cellx_1 = require("cellx");
-function EnumerableDecorator(target, propertyName, propertyDesc) {
-    if (propertyDesc) {
-        propertyDesc.enumerable = true;
-        return propertyDesc;
-    }
-    return {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        value: undefined
-    };
-}
-exports.Enumerable = EnumerableDecorator;
-exports.enumerable = EnumerableDecorator;
 function NonEnumerableDecorator(target, propertyName, propertyDesc) {
     if (propertyDesc) {
         propertyDesc.enumerable = false;
@@ -30,6 +16,20 @@ function NonEnumerableDecorator(target, propertyName, propertyDesc) {
 }
 exports.NonEnumerable = NonEnumerableDecorator;
 exports.nonEnumerable = NonEnumerableDecorator;
+function EnumerableDecorator(target, propertyName, propertyDesc) {
+    if (propertyDesc) {
+        propertyDesc.enumerable = true;
+        return propertyDesc;
+    }
+    return {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: undefined
+    };
+}
+exports.Enumerable = EnumerableDecorator;
+exports.enumerable = EnumerableDecorator;
 function CellDecorator(targetOrOptions, propertyName, propertyDesc, opts) {
     if (arguments.length == 1) {
         return function (target, propertyName, propertyDesc) {
@@ -53,7 +53,9 @@ function CellDecorator(targetOrOptions, propertyName, propertyDesc, opts) {
                         (propertyDesc.initializer
                             ? propertyDesc.initializer()
                             : propertyDesc.value)), opts
-                    ? opts.context === undefined ? object_assign_polyfill_1.assign({ context: this }, opts) : opts
+                    ? opts.context === undefined
+                        ? object_assign_polyfill_1.assign({ context: this }, opts)
+                        : opts
                     : { context: this }))).get();
         },
         set: (propertyDesc && propertyDesc.set) ||
@@ -66,15 +68,19 @@ function CellDecorator(targetOrOptions, propertyName, propertyDesc, opts) {
                         (propertyDesc.initializer
                             ? propertyDesc.initializer()
                             : propertyDesc.value), opts
-                        ? opts.context === undefined ? object_assign_polyfill_1.assign({ context: this }, opts) : opts
+                        ? opts.context === undefined
+                            ? object_assign_polyfill_1.assign({ context: this }, opts)
+                            : opts
                         : { context: this })).set(value);
                 }
                 else {
-                    var isFn = typeof value == 'function';
-                    this[cellName] = new cellx_1.Cell(isFn ? value : undefined, opts
-                        ? opts.context === undefined ? object_assign_polyfill_1.assign({ context: this }, opts) : opts
+                    var isFunction = typeof value == 'function';
+                    this[cellName] = new cellx_1.Cell(isFunction ? value : undefined, opts
+                        ? opts.context === undefined
+                            ? object_assign_polyfill_1.assign({ context: this }, opts)
+                            : opts
                         : { context: this });
-                    if (!isFn) {
+                    if (!isFunction) {
                         this[cellName].set(value);
                     }
                 }
