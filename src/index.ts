@@ -68,14 +68,14 @@ function CellDecorator<T = any>(
 	propertyName: string,
 	propertyDesc?: PropertyDescriptor
 ): any;
-function CellDecorator<T = any>(
-	opts: ICellOptions<T>
+function CellDecorator<T = any, M = any>(
+	options: ICellOptions<T, M>
 ): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-function CellDecorator<T>(
-	targetOrOptions: Object | ICellOptions<T>,
+function CellDecorator<T, M>(
+	targetOrOptions: Object | ICellOptions<T, M>,
 	propertyName?: string,
 	propertyDesc?: PropertyDescriptor,
-	opts?: ICellOptions<T>
+	options?: ICellOptions<T, M>
 ): any {
 	if (arguments.length == 1) {
 		return (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any =>
@@ -104,10 +104,10 @@ function CellDecorator<T>(
 							((propertyDesc as any).initializer
 								? (propertyDesc as any).initializer()
 								: propertyDesc.value)),
-					opts
-						? opts.context === undefined
-							? assign({ context: this }, opts)
-							: opts
+					options
+						? options.context === undefined
+							? assign({ context: this }, options)
+							: options
 						: { context: this }
 				))
 			).get();
@@ -124,10 +124,10 @@ function CellDecorator<T>(
 							((propertyDesc as any).initializer
 								? (propertyDesc as any).initializer()
 								: propertyDesc.value),
-						opts
-							? opts.context === undefined
-								? assign({ context: this }, opts)
-								: opts
+						options
+							? options.context === undefined
+								? assign({ context: this }, options)
+								: options
 							: { context: this }
 					)).set(value);
 				} else {
@@ -135,10 +135,10 @@ function CellDecorator<T>(
 
 					this[cellName] = new Cell(
 						isFunction ? value : undefined,
-						opts
-							? opts.context === undefined
-								? assign({ context: this }, opts)
-								: opts
+						options
+							? options.context === undefined
+								? assign({ context: this }, options)
+								: options
 							: { context: this }
 					);
 
@@ -155,14 +155,14 @@ function ObservableDecorator<T = any>(
 	propertyName: string,
 	propertyDesc?: PropertyDescriptor
 ): any;
-function ObservableDecorator<T = any>(
-	opts: ICellOptions<T>
+function ObservableDecorator<T = any, M = any>(
+	options: ICellOptions<T, M>
 ): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-function ObservableDecorator<T>(
-	targetOrOptions: Object | ICellOptions<T>,
+function ObservableDecorator<T, M>(
+	targetOrOptions: Object | ICellOptions<T, M>,
 	propertyName?: string,
 	propertyDesc?: PropertyDescriptor,
-	opts?: ICellOptions<T>
+	options?: ICellOptions<T, M>
 ): any {
 	if (arguments.length == 1) {
 		return (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any =>
@@ -177,7 +177,7 @@ function ObservableDecorator<T>(
 		throw new TypeError('Invalid descriptor of observable property');
 	}
 
-	return (CellDecorator as any)(targetOrOptions, propertyName as string, propertyDesc, opts);
+	return (CellDecorator as any)(targetOrOptions, propertyName as string, propertyDesc, options);
 }
 
 function ComputedDecorator<T = any>(
@@ -185,14 +185,14 @@ function ComputedDecorator<T = any>(
 	propertyName: string,
 	propertyDesc?: PropertyDescriptor
 ): any;
-function ComputedDecorator<T = any>(
-	opts: ICellOptions<T>
+function ComputedDecorator<T = any, M = any>(
+	options: ICellOptions<T, M>
 ): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-function ComputedDecorator<T>(
-	targetOrOptions: Object | ICellOptions<T>,
+function ComputedDecorator<T, M>(
+	targetOrOptions: Object | ICellOptions<T, M>,
 	propertyName?: string,
 	propertyDesc?: PropertyDescriptor,
-	opts?: ICellOptions<T>
+	options?: ICellOptions<T, M>
 ): any {
 	if (arguments.length == 1) {
 		return (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any =>
@@ -211,7 +211,7 @@ function ComputedDecorator<T>(
 		targetOrOptions,
 		propertyName as string,
 		propertyDesc,
-		opts
+		options
 	);
 	(propertyDesc as PropertyDescriptor).enumerable = false;
 

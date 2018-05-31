@@ -28,9 +28,9 @@ declare function EnumerableDecorator(target: Object, propertyName: string, prope
  *   set: undefined }
  */
 declare function CellDecorator<T = any>(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
-declare function CellDecorator<T = any>(opts: ICellOptions<T>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
+declare function CellDecorator<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
 declare function ObservableDecorator<T = any>(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
-declare function ObservableDecorator<T = any>(opts: ICellOptions<T>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
+declare function ObservableDecorator<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
 declare function ComputedDecorator<T = any>(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
-declare function ComputedDecorator<T = any>(opts: ICellOptions<T>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
+declare function ComputedDecorator<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
 export { NonEnumerableDecorator as NonEnumerable, NonEnumerableDecorator as nonEnumerable, EnumerableDecorator as Enumerable, EnumerableDecorator as enumerable, CellDecorator as Cell, CellDecorator as cell, ObservableDecorator as Observable, ObservableDecorator as observable, ComputedDecorator as Computed, ComputedDecorator as computed };
