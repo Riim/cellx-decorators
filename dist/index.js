@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var object_assign_polyfill_1 = require("@riim/object-assign-polyfill");
-var cellx_1 = require("cellx");
-function NonEnumerableDecorator(target, propertyName, propertyDesc) {
+const object_assign_polyfill_1 = require("@riim/object-assign-polyfill");
+const cellx_1 = require("cellx");
+function NonEnumerable(_target, _propertyName, propertyDesc) {
     if (propertyDesc) {
         propertyDesc.enumerable = false;
         return propertyDesc;
@@ -14,9 +14,9 @@ function NonEnumerableDecorator(target, propertyName, propertyDesc) {
         value: undefined
     };
 }
-exports.NonEnumerable = NonEnumerableDecorator;
-exports.nonEnumerable = NonEnumerableDecorator;
-function EnumerableDecorator(target, propertyName, propertyDesc) {
+exports.NonEnumerable = NonEnumerable;
+exports.nonEnumerable = NonEnumerable;
+function Enumerable(_target, _propertyName, propertyDesc) {
     if (propertyDesc) {
         propertyDesc.enumerable = true;
         return propertyDesc;
@@ -28,15 +28,13 @@ function EnumerableDecorator(target, propertyName, propertyDesc) {
         value: undefined
     };
 }
-exports.Enumerable = EnumerableDecorator;
-exports.enumerable = EnumerableDecorator;
-function CellDecorator(targetOrOptions, propertyName, propertyDesc, options) {
+exports.Enumerable = Enumerable;
+exports.enumerable = Enumerable;
+function Cell(targetOrOptions, propertyName, propertyDesc, options) {
     if (arguments.length == 1) {
-        return function (target, propertyName, propertyDesc) {
-            return CellDecorator(target, propertyName, propertyDesc, targetOrOptions);
-        };
+        return (target, propertyName, propertyDesc) => Cell(target, propertyName, propertyDesc, targetOrOptions);
     }
-    var cellName = propertyName + 'Cell';
+    let cellName = propertyName + 'Cell';
     Object.defineProperty(targetOrOptions, cellName, {
         configurable: true,
         enumerable: false,
@@ -46,7 +44,7 @@ function CellDecorator(targetOrOptions, propertyName, propertyDesc, options) {
     return {
         configurable: true,
         enumerable: propertyDesc ? propertyDesc.enumerable : true,
-        get: function () {
+        get() {
             return (this[cellName] ||
                 (this[cellName] = new cellx_1.Cell(propertyDesc &&
                     (propertyDesc.get ||
@@ -74,7 +72,7 @@ function CellDecorator(targetOrOptions, propertyName, propertyDesc, options) {
                         : { context: this })).set(value);
                 }
                 else {
-                    var isFunction = typeof value == 'function';
+                    let isFunction = typeof value == 'function';
                     this[cellName] = new cellx_1.Cell(isFunction ? value : undefined, options
                         ? options.context === undefined
                             ? object_assign_polyfill_1.assign({ context: this }, options)
@@ -87,37 +85,33 @@ function CellDecorator(targetOrOptions, propertyName, propertyDesc, options) {
             }
     };
 }
-exports.Cell = CellDecorator;
-exports.cell = CellDecorator;
-function ObservableDecorator(targetOrOptions, propertyName, propertyDesc, options) {
+exports.Cell = Cell;
+exports.cell = Cell;
+function Observable(targetOrOptions, propertyName, propertyDesc, options) {
     if (arguments.length == 1) {
-        return function (target, propertyName, propertyDesc) {
-            return ObservableDecorator(target, propertyName, propertyDesc, targetOrOptions);
-        };
+        return (target, propertyName, propertyDesc) => Observable(target, propertyName, propertyDesc, targetOrOptions);
     }
     if (propertyDesc &&
         (propertyDesc.get ||
             (propertyDesc.value !== undefined && typeof propertyDesc.value == 'function'))) {
         throw new TypeError('Invalid descriptor of observable property');
     }
-    return CellDecorator(targetOrOptions, propertyName, propertyDesc, options);
+    return Cell(targetOrOptions, propertyName, propertyDesc, options);
 }
-exports.Observable = ObservableDecorator;
-exports.observable = ObservableDecorator;
-function ComputedDecorator(targetOrOptions, propertyName, propertyDesc, options) {
+exports.Observable = Observable;
+exports.observable = Observable;
+function Computed(targetOrOptions, propertyName, propertyDesc, options) {
     if (arguments.length == 1) {
-        return function (target, propertyName, propertyDesc) {
-            return ComputedDecorator(target, propertyName, propertyDesc, targetOrOptions);
-        };
+        return (target, propertyName, propertyDesc) => Computed(target, propertyName, propertyDesc, targetOrOptions);
     }
     if (propertyDesc &&
         propertyDesc.value !== undefined &&
         typeof propertyDesc.value != 'function') {
         throw new TypeError('Invalid descriptor of computed property');
     }
-    propertyDesc = CellDecorator(targetOrOptions, propertyName, propertyDesc, options);
+    propertyDesc = Cell(targetOrOptions, propertyName, propertyDesc, options);
     propertyDesc.enumerable = false;
     return propertyDesc;
 }
-exports.Computed = ComputedDecorator;
-exports.computed = ComputedDecorator;
+exports.Computed = Computed;
+exports.computed = Computed;

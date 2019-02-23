@@ -1,9 +1,9 @@
 import { assign } from '@riim/object-assign-polyfill';
-import { Cell, ICellOptions } from 'cellx';
+import { Cell as cellxCell, ICellOptions } from 'cellx';
 
-function NonEnumerableDecorator(
-	target: Object,
-	propertyName: string,
+export function NonEnumerable(
+	_target: Object,
+	_propertyName: string,
 	propertyDesc?: PropertyDescriptor
 ): any {
 	if (propertyDesc) {
@@ -19,9 +19,11 @@ function NonEnumerableDecorator(
 	};
 }
 
-function EnumerableDecorator(
-	target: Object,
-	propertyName: string,
+export { NonEnumerable as nonEnumerable };
+
+export function Enumerable(
+	_target: Object,
+	_propertyName: string,
 	propertyDesc?: PropertyDescriptor
 ): any {
 	if (propertyDesc) {
@@ -36,6 +38,8 @@ function EnumerableDecorator(
 		value: undefined
 	};
 }
+
+export { Enumerable as enumerable };
 
 /**
  * Babel PropertyDecorator arguments:
@@ -63,15 +67,15 @@ function EnumerableDecorator(
  *   get: function ()
  *   set: undefined }
  */
-function CellDecorator<T = any>(
+export function Cell<T = any>(
 	target: Object,
 	propertyName: string,
 	propertyDesc?: PropertyDescriptor
 ): any;
-function CellDecorator<T = any, M = any>(
+export function Cell<T = any, M = any>(
 	options: ICellOptions<T, M>
 ): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-function CellDecorator<T, M>(
+export function Cell<T, M>(
 	targetOrOptions: Object | ICellOptions<T, M>,
 	propertyName?: string,
 	propertyDesc?: PropertyDescriptor,
@@ -79,7 +83,7 @@ function CellDecorator<T, M>(
 ): any {
 	if (arguments.length == 1) {
 		return (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any =>
-			(CellDecorator as any)(target, propertyName, propertyDesc, targetOrOptions);
+			(Cell as any)(target, propertyName, propertyDesc, targetOrOptions);
 	}
 
 	let cellName = propertyName + 'Cell';
@@ -98,7 +102,7 @@ function CellDecorator<T, M>(
 		get(): any {
 			return (
 				this[cellName] ||
-				(this[cellName] = new Cell(
+				(this[cellName] = new cellxCell(
 					propertyDesc &&
 						(propertyDesc.get ||
 							((propertyDesc as any).initializer
@@ -119,7 +123,7 @@ function CellDecorator<T, M>(
 				if (this[cellName]) {
 					this[cellName].set(value);
 				} else if (propertyDesc) {
-					(this[cellName] = new Cell(
+					(this[cellName] = new cellxCell(
 						propertyDesc.get ||
 							((propertyDesc as any).initializer
 								? (propertyDesc as any).initializer()
@@ -133,7 +137,7 @@ function CellDecorator<T, M>(
 				} else {
 					let isFunction = typeof value == 'function';
 
-					this[cellName] = new Cell(
+					this[cellName] = new cellxCell(
 						isFunction ? value : undefined,
 						options
 							? options.context === undefined
@@ -150,15 +154,17 @@ function CellDecorator<T, M>(
 	};
 }
 
-function ObservableDecorator<T = any>(
+export { Cell as cell };
+
+export function Observable<T = any>(
 	target: Object,
 	propertyName: string,
 	propertyDesc?: PropertyDescriptor
 ): any;
-function ObservableDecorator<T = any, M = any>(
+export function Observable<T = any, M = any>(
 	options: ICellOptions<T, M>
 ): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-function ObservableDecorator<T, M>(
+export function Observable<T, M>(
 	targetOrOptions: Object | ICellOptions<T, M>,
 	propertyName?: string,
 	propertyDesc?: PropertyDescriptor,
@@ -166,7 +172,7 @@ function ObservableDecorator<T, M>(
 ): any {
 	if (arguments.length == 1) {
 		return (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any =>
-			(ObservableDecorator as any)(target, propertyName, propertyDesc, targetOrOptions);
+			(Observable as any)(target, propertyName, propertyDesc, targetOrOptions);
 	}
 
 	if (
@@ -177,18 +183,20 @@ function ObservableDecorator<T, M>(
 		throw new TypeError('Invalid descriptor of observable property');
 	}
 
-	return (CellDecorator as any)(targetOrOptions, propertyName as string, propertyDesc, options);
+	return (Cell as any)(targetOrOptions, propertyName as string, propertyDesc, options);
 }
 
-function ComputedDecorator<T = any>(
+export { Observable as observable };
+
+export function Computed<T = any>(
 	target: Object,
 	propertyName: string,
 	propertyDesc?: PropertyDescriptor
 ): any;
-function ComputedDecorator<T = any, M = any>(
+export function Computed<T = any, M = any>(
 	options: ICellOptions<T, M>
 ): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-function ComputedDecorator<T, M>(
+export function Computed<T, M>(
 	targetOrOptions: Object | ICellOptions<T, M>,
 	propertyName?: string,
 	propertyDesc?: PropertyDescriptor,
@@ -196,7 +204,7 @@ function ComputedDecorator<T, M>(
 ): any {
 	if (arguments.length == 1) {
 		return (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any =>
-			(ComputedDecorator as any)(target, propertyName, propertyDesc, targetOrOptions);
+			(Computed as any)(target, propertyName, propertyDesc, targetOrOptions);
 	}
 
 	if (
@@ -207,31 +215,10 @@ function ComputedDecorator<T, M>(
 		throw new TypeError('Invalid descriptor of computed property');
 	}
 
-	propertyDesc = (CellDecorator as any)(
-		targetOrOptions,
-		propertyName as string,
-		propertyDesc,
-		options
-	);
+	propertyDesc = (Cell as any)(targetOrOptions, propertyName as string, propertyDesc, options);
 	(propertyDesc as PropertyDescriptor).enumerable = false;
 
 	return propertyDesc;
 }
 
-// prettier-ignore
-export {
-	NonEnumerableDecorator as NonEnumerable,
-	NonEnumerableDecorator as nonEnumerable,
-
-	EnumerableDecorator as Enumerable,
-	EnumerableDecorator as enumerable,
-
-	CellDecorator as Cell,
-	CellDecorator as cell,
-
-	ObservableDecorator as Observable,
-	ObservableDecorator as observable,
-
-	ComputedDecorator as Computed,
-	ComputedDecorator as computed
-};
+export { Computed as computed };

@@ -1,6 +1,8 @@
 import { ICellOptions } from 'cellx';
-declare function NonEnumerableDecorator(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
-declare function EnumerableDecorator(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
+export declare function NonEnumerable(_target: Object, _propertyName: string, propertyDesc?: PropertyDescriptor): any;
+export { NonEnumerable as nonEnumerable };
+export declare function Enumerable(_target: Object, _propertyName: string, propertyDesc?: PropertyDescriptor): any;
+export { Enumerable as enumerable };
 /**
  * Babel PropertyDecorator arguments:
  * prototype
@@ -27,10 +29,12 @@ declare function EnumerableDecorator(target: Object, propertyName: string, prope
  *   get: function ()
  *   set: undefined }
  */
-declare function CellDecorator<T = any>(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
-declare function CellDecorator<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-declare function ObservableDecorator<T = any>(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
-declare function ObservableDecorator<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-declare function ComputedDecorator<T = any>(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
-declare function ComputedDecorator<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
-export { NonEnumerableDecorator as NonEnumerable, NonEnumerableDecorator as nonEnumerable, EnumerableDecorator as Enumerable, EnumerableDecorator as enumerable, CellDecorator as Cell, CellDecorator as cell, ObservableDecorator as Observable, ObservableDecorator as observable, ComputedDecorator as Computed, ComputedDecorator as computed };
+export declare function Cell<T = any>(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
+export declare function Cell<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
+export { Cell as cell };
+export declare function Observable<T = any>(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
+export declare function Observable<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
+export { Observable as observable };
+export declare function Computed<T = any>(target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any;
+export declare function Computed<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
+export { Computed as computed };
