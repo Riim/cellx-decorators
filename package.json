@@ -1,6 +1,6 @@
 {
   "name": "cellx-decorators",
-  "version": "1.4.11",
+  "version": "1.4.12",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
