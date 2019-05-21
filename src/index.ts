@@ -54,6 +54,11 @@ export function Cell<T, M>(
 		value: undefined
 	});
 
+	let constr = targetOrOptions.constructor;
+	let debugKey =
+		(constr != Object && constr != Function && constr.name ? constr.name + '#' : '') +
+		propertyName;
+
 	return {
 		configurable: true,
 		enumerable: propertyDesc ? propertyDesc.enumerable : true,
@@ -68,10 +73,17 @@ export function Cell<T, M>(
 								? (propertyDesc as any).initializer()
 								: propertyDesc.value)),
 					options
-						? options.context === undefined
-							? Object.assign({ context: this }, options)
-							: options
-						: { context: this }
+						? Object.assign(
+								{
+									debugKey,
+									context: options.context !== undefined ? options.context : this
+								},
+								options
+						  )
+						: {
+								debugKey,
+								context: this
+						  }
 				))
 			).get();
 		},
@@ -88,10 +100,18 @@ export function Cell<T, M>(
 								? (propertyDesc as any).initializer()
 								: propertyDesc.value),
 						options
-							? options.context === undefined
-								? Object.assign({ context: this }, options)
-								: options
-							: { context: this }
+							? Object.assign(
+									{
+										debugKey,
+										context:
+											options.context !== undefined ? options.context : this
+									},
+									options
+							  )
+							: {
+									debugKey,
+									context: this
+							  }
 					)).set(value);
 				} else {
 					let isFunction = typeof value == 'function';
@@ -99,10 +119,18 @@ export function Cell<T, M>(
 					this[cellName] = new CellxCell(
 						isFunction ? value : undefined,
 						options
-							? options.context === undefined
-								? Object.assign({ context: this }, options)
-								: options
-							: { context: this }
+							? Object.assign(
+									{
+										debugKey,
+										context:
+											options.context !== undefined ? options.context : this
+									},
+									options
+							  )
+							: {
+									debugKey,
+									context: this
+							  }
 					);
 
 					if (!isFunction) {
