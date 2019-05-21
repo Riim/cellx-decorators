@@ -1,5 +1,4 @@
-import { assign } from '@riim/object-assign-polyfill';
-import { Cell as cellxCell, ICellOptions } from 'cellx';
+import { Cell as CellxCell, ICellOptions } from 'cellx';
 
 export function NonEnumerable(
 	_target: Object,
@@ -102,7 +101,7 @@ export function Cell<T, M>(
 		get(): any {
 			return (
 				this[cellName] ||
-				(this[cellName] = new cellxCell(
+				(this[cellName] = new CellxCell(
 					propertyDesc &&
 						(propertyDesc.get ||
 							((propertyDesc as any).initializer
@@ -110,7 +109,7 @@ export function Cell<T, M>(
 								: propertyDesc.value)),
 					options
 						? options.context === undefined
-							? assign({ context: this }, options)
+							? Object.assign({ context: this }, options)
 							: options
 						: { context: this }
 				))
@@ -123,25 +122,25 @@ export function Cell<T, M>(
 				if (this[cellName]) {
 					this[cellName].set(value);
 				} else if (propertyDesc) {
-					(this[cellName] = new cellxCell(
+					(this[cellName] = new CellxCell(
 						propertyDesc.get ||
 							((propertyDesc as any).initializer
 								? (propertyDesc as any).initializer()
 								: propertyDesc.value),
 						options
 							? options.context === undefined
-								? assign({ context: this }, options)
+								? Object.assign({ context: this }, options)
 								: options
 							: { context: this }
 					)).set(value);
 				} else {
 					let isFunction = typeof value == 'function';
 
-					this[cellName] = new cellxCell(
+					this[cellName] = new CellxCell(
 						isFunction ? value : undefined,
 						options
 							? options.context === undefined
-								? assign({ context: this }, options)
+								? Object.assign({ context: this }, options)
 								: options
 							: { context: this }
 					);
