@@ -1,6 +1,6 @@
 {
   "name": "cellx-decorators",
-  "version": "1.4.12",
+  "version": "1.5.0",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -19,10 +19,9 @@
   },
   "homepage": "https://github.com/Riim/cellx-decorators#readme",
   "devDependencies": {
-    "typescript": "^3.3.3333"
+    "typescript": "^3.4.5"
   },
   "dependencies": {
-    "@riim/object-assign-polyfill": "^1.0.0",
-    "cellx": "^1.7.95"
+    "cellx": "^1.7.97"
   }
 }

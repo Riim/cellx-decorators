@@ -1,35 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const object_assign_polyfill_1 = require("@riim/object-assign-polyfill");
 const cellx_1 = require("cellx");
-function NonEnumerable(_target, _propertyName, propertyDesc) {
-    if (propertyDesc) {
-        propertyDesc.enumerable = false;
-        return propertyDesc;
-    }
-    return {
-        configurable: true,
-        enumerable: false,
-        writable: true,
-        value: undefined
-    };
-}
-exports.NonEnumerable = NonEnumerable;
-exports.nonEnumerable = NonEnumerable;
-function Enumerable(_target, _propertyName, propertyDesc) {
-    if (propertyDesc) {
-        propertyDesc.enumerable = true;
-        return propertyDesc;
-    }
-    return {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        value: undefined
-    };
-}
-exports.Enumerable = Enumerable;
-exports.enumerable = Enumerable;
 function Cell(targetOrOptions, propertyName, propertyDesc, options) {
     if (arguments.length == 1) {
         return (target, propertyName, propertyDesc) => Cell(target, propertyName, propertyDesc, targetOrOptions);
@@ -41,6 +12,9 @@ function Cell(targetOrOptions, propertyName, propertyDesc, options) {
         writable: true,
         value: undefined
     });
+    let constr = targetOrOptions.constructor;
+    let debugKey = (constr != Object && constr != Function && constr.name ? constr.name + '#' : '') +
+        propertyName;
     return {
         configurable: true,
         enumerable: propertyDesc ? propertyDesc.enumerable : true,
@@ -51,10 +25,14 @@ function Cell(targetOrOptions, propertyName, propertyDesc, options) {
                         (propertyDesc.initializer
                             ? propertyDesc.initializer()
                             : propertyDesc.value)), options
-                    ? options.context === undefined
-                        ? object_assign_polyfill_1.assign({ context: this }, options)
-                        : options
-                    : { context: this }))).get();
+                    ? Object.assign({
+                        debugKey,
+                        context: options.context !== undefined ? options.context : this
+                    }, options)
+                    : {
+                        debugKey,
+                        context: this
+                    }))).get();
         },
         set: (propertyDesc && propertyDesc.set) ||
             function (value) {
@@ -66,18 +44,26 @@ function Cell(targetOrOptions, propertyName, propertyDesc, options) {
                         (propertyDesc.initializer
                             ? propertyDesc.initializer()
                             : propertyDesc.value), options
-                        ? options.context === undefined
-                            ? object_assign_polyfill_1.assign({ context: this }, options)
-                            : options
-                        : { context: this })).set(value);
+                        ? Object.assign({
+                            debugKey,
+                            context: options.context !== undefined ? options.context : this
+                        }, options)
+                        : {
+                            debugKey,
+                            context: this
+                        })).set(value);
                 }
                 else {
                     let isFunction = typeof value == 'function';
                     this[cellName] = new cellx_1.Cell(isFunction ? value : undefined, options
-                        ? options.context === undefined
-                            ? object_assign_polyfill_1.assign({ context: this }, options)
-                            : options
-                        : { context: this });
+                        ? Object.assign({
+                            debugKey,
+                            context: options.context !== undefined ? options.context : this
+                        }, options)
+                        : {
+                            debugKey,
+                            context: this
+                        });
                     if (!isFunction) {
                         this[cellName].set(value);
                     }
