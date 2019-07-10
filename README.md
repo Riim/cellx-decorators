@@ -14,25 +14,25 @@ npm install cellx-decorators --save
 
 ```js
 import { EventEmitter } from 'cellx';
-import { observable, computed } from 'cellx-decorators';
+import { Observable, Computed } from 'cellx-decorators';
 import formatPhone from '../../utils/formatPhone';
 
 class User extends EventEmitter {
-    id = void 0;
+    id = null;
 
-    @observable firstName = void 0;
-    @observable lastName = void 0;
-    @computed get fullName() {
-        return [this.firstName, this.lastName].join(' ').trim() || void 0;
+    @Observable firstName = null;
+    @Observable lastName = null;
+    @Computed get fullName() {
+        return [this.firstName, this.lastName].join(' ').trim() || null;
     }
 
-    @observable phone = void 0;
+    @Observable phone = null;
 
-    @computed({
-		put(value) {
-			this.phone = value.replace(/\D+/g, '');
-		}
-	}) get formattedPhone() {
+    @Computed({
+        put(value) {
+            this.phone = value.replace(/\D+/g, '');
+        }
+    }) get formattedPhone() {
         return this.phone && formatPhone(this.phone);
     }
 }
@@ -52,22 +52,22 @@ console.log(u.phone);
 
 ```js
 module.exports = {
-	module: {
-		loaders: [
-			{
-				test: /\.js$/,
-				exclude: /(?:node_modules|bower_components)/,
-				loader: 'babel',
-				query: {
-					presets: ['es2015'],
-					plugins: [
-						'transform-decorators-legacy',
-						'transform-class-properties'
-					]
-				}
-			}
-		]
-	}
+    module: {
+        loaders: [
+            {
+                test: /\.js$/,
+                exclude: /(?:node_modules|bower_components)/,
+                loader: 'babel',
+                query: {
+                    presets: ['es2015'],
+                    plugins: [
+                        'transform-decorators-legacy',
+                        'transform-class-properties'
+                    ]
+                }
+            }
+        ]
+    }
 };
 
 ```
