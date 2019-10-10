@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const cellx_1 = require("cellx");
-function Cell(targetOrOptions, propertyName, propertyDesc, options) {
+import { Cell as CellxCell } from 'cellx';
+export function Cell(targetOrOptions, propertyName, propertyDesc, options) {
     if (arguments.length == 1) {
         return (target, propertyName, propertyDesc) => Cell(target, propertyName, propertyDesc, targetOrOptions);
     }
@@ -20,7 +18,7 @@ function Cell(targetOrOptions, propertyName, propertyDesc, options) {
         enumerable: propertyDesc ? propertyDesc.enumerable : true,
         get() {
             return (this[cellName] ||
-                (this[cellName] = new cellx_1.Cell(propertyDesc &&
+                (this[cellName] = new CellxCell(propertyDesc &&
                     (propertyDesc.get ||
                         (propertyDesc.initializer
                             ? propertyDesc.initializer()
@@ -40,7 +38,7 @@ function Cell(targetOrOptions, propertyName, propertyDesc, options) {
                     this[cellName].set(value);
                 }
                 else if (propertyDesc) {
-                    (this[cellName] = new cellx_1.Cell(propertyDesc.get ||
+                    (this[cellName] = new CellxCell(propertyDesc.get ||
                         (propertyDesc.initializer
                             ? propertyDesc.initializer()
                             : propertyDesc.value), options
@@ -55,7 +53,7 @@ function Cell(targetOrOptions, propertyName, propertyDesc, options) {
                 }
                 else {
                     let isFunction = typeof value == 'function';
-                    this[cellName] = new cellx_1.Cell(isFunction ? value : undefined, options
+                    this[cellName] = new CellxCell(isFunction ? value : undefined, options
                         ? Object.assign({
                             debugKey,
                             context: options.context !== undefined ? options.context : this
@@ -71,9 +69,8 @@ function Cell(targetOrOptions, propertyName, propertyDesc, options) {
             }
     };
 }
-exports.Cell = Cell;
-exports.cell = Cell;
-function Observable(targetOrOptions, propertyName, propertyDesc, options) {
+export { Cell as cell };
+export function Observable(targetOrOptions, propertyName, propertyDesc, options) {
     if (arguments.length == 1) {
         return (target, propertyName, propertyDesc) => Observable(target, propertyName, propertyDesc, targetOrOptions);
     }
@@ -84,9 +81,8 @@ function Observable(targetOrOptions, propertyName, propertyDesc, options) {
     }
     return Cell(targetOrOptions, propertyName, propertyDesc, options);
 }
-exports.Observable = Observable;
-exports.observable = Observable;
-function Computed(targetOrOptions, propertyName, propertyDesc, options) {
+export { Observable as observable };
+export function Computed(targetOrOptions, propertyName, propertyDesc, options) {
     if (arguments.length == 1) {
         return (target, propertyName, propertyDesc) => Computed(target, propertyName, propertyDesc, targetOrOptions);
     }
@@ -99,5 +95,4 @@ function Computed(targetOrOptions, propertyName, propertyDesc, options) {
     propertyDesc.enumerable = false;
     return propertyDesc;
 }
-exports.Computed = Computed;
-exports.computed = Computed;
+export { Computed as computed };
