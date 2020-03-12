@@ -1,6 +1,6 @@
 {
   "name": "cellx-decorators",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
@@ -20,12 +20,12 @@
   },
   "homepage": "https://github.com/Riim/cellx-decorators#readme",
   "devDependencies": {
-    "rollup": "^1.23.1",
+    "rollup": "^2.0.5",
     "rollup-plugin-tslint": "^0.2.2",
-    "rollup-plugin-typescript2": "^0.24.3",
-    "typescript": "^3.6.4"
+    "rollup-plugin-typescript2": "^0.26.0",
+    "typescript": "^3.8.3"
   },
   "dependencies": {
-    "cellx": "^1.9.16"
+    "cellx": "^1.10.0"
   }
 }

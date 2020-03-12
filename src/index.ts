@@ -1,9 +1,9 @@
-import { Cell as CellxCell, ICellOptions } from 'cellx';
+import { Cell as CellxCell, ICellOptions, KEY_VALUE_CELLS } from 'cellx';
 
 /**
  * Babel PropertyDecorator arguments:
  * prototype
- * 'propertyName'
+ * 'propName'
  * { configurable: false
  *   enumerable: true
  *   initializer: function initializer() | null
@@ -13,129 +13,148 @@ import { Cell as CellxCell, ICellOptions } from 'cellx';
  *
  * Typescript PropertyDecorator arguments:
  * prototype
- * 'propertyName'
+ * 'propName'
  * undefined | результат предыдущего декоратора
  *
  * https://github.com/Microsoft/TypeScript/issues/8063.
  *
  * AccessorDecorator arguments:
  * prototype
- * 'propertyName'
+ * 'propName'
  * { configurable: true
  *   enumerable: true
  *   get: function ()
  *   set: undefined }
  */
-export function Cell<T = any>(
-	target: Object,
-	propertyName: string,
-	propertyDesc?: PropertyDescriptor
-): any;
+export function Cell<T = any>(target: Object, propName: string, propDesc?: PropertyDescriptor): any;
 export function Cell<T = any, M = any>(
 	options: ICellOptions<T, M>
-): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
+): (target: Object, propName: string, propDesc?: PropertyDescriptor) => any;
 export function Cell<T, M>(
 	targetOrOptions: Object | ICellOptions<T, M>,
-	propertyName?: string,
-	propertyDesc?: PropertyDescriptor,
+	propName?: string,
+	propDesc?: PropertyDescriptor,
 	options?: ICellOptions<T, M>
 ): any {
 	if (arguments.length == 1) {
-		return (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any =>
-			(Cell as any)(target, propertyName, propertyDesc, targetOrOptions);
+		return (target: Object, propName: string, propDesc?: PropertyDescriptor): any =>
+			(Cell as any)(target, propName, propDesc, targetOrOptions);
 	}
-
-	let cellName = propertyName + 'Cell';
-
-	Object.defineProperty(targetOrOptions, cellName, {
-		configurable: true,
-		enumerable: false,
-		writable: true,
-		value: undefined
-	});
 
 	let constr = targetOrOptions.constructor;
 	let debugKey =
-		(constr != Object && constr != Function && constr.name ? constr.name + '#' : '') +
-		propertyName;
+		(constr != Object && constr != Function && constr.name ? constr.name + '#' : '') + propName;
 
 	return {
 		configurable: true,
-		enumerable: propertyDesc ? propertyDesc.enumerable : true,
+		enumerable: propDesc ? propDesc.enumerable : true,
 
 		get(): any {
-			return (
-				this[cellName] ||
-				(this[cellName] = new CellxCell(
-					propertyDesc &&
-						(propertyDesc.get ||
-							((propertyDesc as any).initializer
-								? (propertyDesc as any).initializer()
-								: propertyDesc.value)),
-					options
-						? Object.assign(
-								{
-									debugKey,
-									context: options.context !== undefined ? options.context : this
-								},
+			if (
+				!(
+					(this[KEY_VALUE_CELLS] as Map<string, CellxCell>) ||
+					(this[KEY_VALUE_CELLS] = new Map())
+				).has(propName!)
+			) {
+				(this[KEY_VALUE_CELLS] as Map<string, CellxCell>).set(
+					propName!,
+					this[propName + 'Cell'] instanceof CellxCell
+						? this[propName + 'Cell']
+						: new CellxCell(
+								propDesc &&
+									(propDesc.get ||
+										((propDesc as any).initializer
+											? (propDesc as any).initializer()
+											: propDesc.value)),
 								options
+									? Object.assign(
+											{
+												debugKey,
+												context:
+													options.context !== undefined
+														? options.context
+														: this
+											},
+											options
+									  )
+									: {
+											debugKey,
+											context: this
+									  }
 						  )
-						: {
-								debugKey,
-								context: this
-						  }
-				))
-			).get();
+				);
+			}
+
+			return (this[KEY_VALUE_CELLS] as Map<string, CellxCell>).get(propName!)!.get();
 		},
 
 		set:
-			(propertyDesc && propertyDesc.set) ||
+			(propDesc && propDesc.set) ||
 			function(value: any) {
-				if (this[cellName]) {
-					this[cellName].set(value);
-				} else if (propertyDesc) {
-					(this[cellName] = new CellxCell(
-						propertyDesc.get ||
-							((propertyDesc as any).initializer
-								? (propertyDesc as any).initializer()
-								: propertyDesc.value),
-						options
-							? Object.assign(
-									{
-										debugKey,
-										context:
-											options.context !== undefined ? options.context : this
-									},
+				if (
+					(
+						(this[KEY_VALUE_CELLS] as Map<string, CellxCell>) ||
+						(this[KEY_VALUE_CELLS] = new Map())
+					).has(propName!)
+				) {
+					(this[KEY_VALUE_CELLS] as Map<string, CellxCell>).get(propName!)!.set(value);
+				} else if (propDesc) {
+					(this[KEY_VALUE_CELLS] as Map<string, CellxCell>).set(
+						propName!,
+						(this[propName + 'Cell'] instanceof CellxCell
+							? this[propName + 'Cell']
+							: new CellxCell(
+									propDesc.get ||
+										((propDesc as any).initializer
+											? (propDesc as any).initializer()
+											: propDesc.value),
 									options
+										? Object.assign(
+												{
+													debugKey,
+													context:
+														options.context !== undefined
+															? options.context
+															: this
+												},
+												options
+										  )
+										: {
+												debugKey,
+												context: this
+										  }
 							  )
-							: {
-									debugKey,
-									context: this
-							  }
-					)).set(value);
+						).set(value)
+					);
 				} else {
 					let isFunction = typeof value == 'function';
-
-					this[cellName] = new CellxCell(
-						isFunction ? value : undefined,
-						options
-							? Object.assign(
-									{
-										debugKey,
-										context:
-											options.context !== undefined ? options.context : this
-									},
+					let valueCell =
+						this[propName + 'Cell'] instanceof CellxCell
+							? this[propName + 'Cell']
+							: new CellxCell(
+									isFunction ? value : undefined,
 									options
-							  )
-							: {
-									debugKey,
-									context: this
-							  }
-					);
+										? Object.assign(
+												{
+													debugKey,
+													context:
+														options.context !== undefined
+															? options.context
+															: this
+												},
+												options
+										  )
+										: {
+												debugKey,
+												context: this
+										  }
+							  );
 
 					if (!isFunction) {
-						this[cellName].set(value);
+						valueCell.set(value);
 					}
+
+					(this[KEY_VALUE_CELLS] as Map<string, CellxCell>).set(propName!, valueCell);
 				}
 			}
 	};
@@ -145,67 +164,62 @@ export { Cell as cell };
 
 export function Observable<T = any>(
 	target: Object,
-	propertyName: string,
-	propertyDesc?: PropertyDescriptor
+	propName: string,
+	propDesc?: PropertyDescriptor
 ): any;
 export function Observable<T = any, M = any>(
 	options: ICellOptions<T, M>
-): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
+): (target: Object, propName: string, propDesc?: PropertyDescriptor) => any;
 export function Observable<T, M>(
 	targetOrOptions: Object | ICellOptions<T, M>,
-	propertyName?: string,
-	propertyDesc?: PropertyDescriptor,
+	propName?: string,
+	propDesc?: PropertyDescriptor,
 	options?: ICellOptions<T, M>
 ): any {
 	if (arguments.length == 1) {
-		return (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any =>
-			(Observable as any)(target, propertyName, propertyDesc, targetOrOptions);
+		return (target: Object, propName: string, propDesc?: PropertyDescriptor): any =>
+			(Observable as any)(target, propName, propDesc, targetOrOptions);
 	}
 
 	if (
-		propertyDesc &&
-		(propertyDesc.get ||
-			(propertyDesc.value !== undefined && typeof propertyDesc.value == 'function'))
+		propDesc &&
+		(propDesc.get || (propDesc.value !== undefined && typeof propDesc.value == 'function'))
 	) {
 		throw new TypeError('Invalid descriptor of observable property');
 	}
 
-	return (Cell as any)(targetOrOptions, propertyName as string, propertyDesc, options);
+	return (Cell as any)(targetOrOptions, propName as string, propDesc, options);
 }
 
 export { Observable as observable };
 
 export function Computed<T = any>(
 	target: Object,
-	propertyName: string,
-	propertyDesc?: PropertyDescriptor
+	propName: string,
+	propDesc?: PropertyDescriptor
 ): any;
 export function Computed<T = any, M = any>(
 	options: ICellOptions<T, M>
-): (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor) => any;
+): (target: Object, propName: string, propDesc?: PropertyDescriptor) => any;
 export function Computed<T, M>(
 	targetOrOptions: Object | ICellOptions<T, M>,
-	propertyName?: string,
-	propertyDesc?: PropertyDescriptor,
+	propName?: string,
+	propDesc?: PropertyDescriptor,
 	options?: ICellOptions<T, M>
 ): any {
 	if (arguments.length == 1) {
-		return (target: Object, propertyName: string, propertyDesc?: PropertyDescriptor): any =>
-			(Computed as any)(target, propertyName, propertyDesc, targetOrOptions);
+		return (target: Object, propName: string, propDesc?: PropertyDescriptor): any =>
+			(Computed as any)(target, propName, propDesc, targetOrOptions);
 	}
 
-	if (
-		propertyDesc &&
-		propertyDesc.value !== undefined &&
-		typeof propertyDesc.value != 'function'
-	) {
+	if (propDesc && propDesc.value !== undefined && typeof propDesc.value != 'function') {
 		throw new TypeError('Invalid descriptor of computed property');
 	}
 
-	propertyDesc = (Cell as any)(targetOrOptions, propertyName as string, propertyDesc, options);
-	(propertyDesc as PropertyDescriptor).enumerable = false;
+	propDesc = (Cell as any)(targetOrOptions, propName as string, propDesc, options);
+	(propDesc as PropertyDescriptor).enumerable = false;
 
-	return propertyDesc;
+	return propDesc;
 }
 
 export { Computed as computed };
