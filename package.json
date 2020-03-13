@@ -20,12 +20,12 @@
   },
   "homepage": "https://github.com/Riim/cellx-decorators#readme",
   "devDependencies": {
-    "rollup": "^2.0.5",
+    "rollup": "^2.0.6",
     "rollup-plugin-tslint": "^0.2.2",
     "rollup-plugin-typescript2": "^0.26.0",
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "cellx": "^1.10.0"
+    "cellx": "^1.10.2"
   }
 }
