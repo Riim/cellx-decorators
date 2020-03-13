@@ -9,10 +9,10 @@ export function Cell(targetOrOptions, propName, propDesc, options) {
         configurable: true,
         enumerable: propDesc ? propDesc.enumerable : true,
         get() {
-            if (!(this[KEY_VALUE_CELLS] ||
-                (this[KEY_VALUE_CELLS] = new Map())).has(propName)) {
-                this[KEY_VALUE_CELLS].set(propName, this[propName + 'Cell'] instanceof CellxCell
-                    ? this[propName + 'Cell']
+            if (!(this[KEY_VALUE_CELLS] || (this[KEY_VALUE_CELLS] = new Map())).has(propName)) {
+                let valueCell = this[propName + 'Cell'];
+                let valueCell_ = valueCell instanceof CellxCell
+                    ? valueCell
                     : new CellxCell(propDesc &&
                         (propDesc.get ||
                             (propDesc.initializer
@@ -27,19 +27,23 @@ export function Cell(targetOrOptions, propName, propDesc, options) {
                         : {
                             debugKey,
                             context: this
-                        }));
+                        });
+                if (valueCell === null) {
+                    this[propName + 'Cell'] = valueCell_;
+                }
+                this[KEY_VALUE_CELLS].set(propName, valueCell_);
             }
             return this[KEY_VALUE_CELLS].get(propName).get();
         },
         set: (propDesc && propDesc.set) ||
             function (value) {
-                if ((this[KEY_VALUE_CELLS] ||
-                    (this[KEY_VALUE_CELLS] = new Map())).has(propName)) {
+                if ((this[KEY_VALUE_CELLS] || (this[KEY_VALUE_CELLS] = new Map())).has(propName)) {
                     this[KEY_VALUE_CELLS].get(propName).set(value);
                 }
                 else if (propDesc) {
-                    this[KEY_VALUE_CELLS].set(propName, (this[propName + 'Cell'] instanceof CellxCell
-                        ? this[propName + 'Cell']
+                    let valueCell = this[propName + 'Cell'];
+                    let valueCell_ = valueCell instanceof CellxCell
+                        ? valueCell
                         : new CellxCell(propDesc.get ||
                             (propDesc.initializer
                                 ? propDesc.initializer()
@@ -53,12 +57,18 @@ export function Cell(targetOrOptions, propName, propDesc, options) {
                             : {
                                 debugKey,
                                 context: this
-                            })).set(value));
+                            });
+                    valueCell_.set(value);
+                    if (valueCell === null) {
+                        this[propName + 'Cell'] = valueCell_;
+                    }
+                    this[KEY_VALUE_CELLS].set(propName, valueCell_);
                 }
                 else {
                     let isFunction = typeof value == 'function';
-                    let valueCell = this[propName + 'Cell'] instanceof CellxCell
-                        ? this[propName + 'Cell']
+                    let valueCell = this[propName + 'Cell'];
+                    let valueCell_ = valueCell instanceof CellxCell
+                        ? valueCell
                         : new CellxCell(isFunction ? value : undefined, options
                             ? Object.assign({
                                 debugKey,
@@ -71,9 +81,12 @@ export function Cell(targetOrOptions, propName, propDesc, options) {
                                 context: this
                             });
                     if (!isFunction) {
-                        valueCell.set(value);
+                        valueCell_.set(value);
                     }
-                    this[KEY_VALUE_CELLS].set(propName, valueCell);
+                    if (valueCell === null) {
+                        this[propName + 'Cell'] = valueCell_;
+                    }
+                    this[KEY_VALUE_CELLS].set(propName, valueCell_);
                 }
             }
     };
