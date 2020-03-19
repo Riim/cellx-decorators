@@ -1,4 +1,4 @@
-import { Cell as CellxCell, ICellOptions, KEY_VALUE_CELLS } from 'cellx';
+import { Cell, ICellOptions, KEY_VALUE_CELLS } from 'cellx';
 
 /**
  * Babel PropertyDecorator arguments:
@@ -26,11 +26,15 @@ import { Cell as CellxCell, ICellOptions, KEY_VALUE_CELLS } from 'cellx';
  *   get: function ()
  *   set: undefined }
  */
-export function Cell<T = any>(target: Object, propName: string, propDesc?: PropertyDescriptor): any;
-export function Cell<T = any, M = any>(
+export function Reactive<T = any>(
+	target: Object,
+	propName: string,
+	propDesc?: PropertyDescriptor
+): any;
+export function Reactive<T = any, M = any>(
 	options: ICellOptions<T, M>
 ): (target: Object, propName: string, propDesc?: PropertyDescriptor) => any;
-export function Cell<T, M>(
+export function Reactive<T, M>(
 	targetOrOptions: Object | ICellOptions<T, M>,
 	propName?: string,
 	propDesc?: PropertyDescriptor,
@@ -38,7 +42,7 @@ export function Cell<T, M>(
 ): any {
 	if (arguments.length == 1) {
 		return (target: Object, propName: string, propDesc?: PropertyDescriptor): any =>
-			(Cell as any)(target, propName, propDesc, targetOrOptions);
+			(Reactive as any)(target, propName, propDesc, targetOrOptions);
 	}
 
 	let constr = targetOrOptions.constructor;
@@ -49,13 +53,13 @@ export function Cell<T, M>(
 		configurable: true,
 		enumerable: propDesc ? propDesc.enumerable : true,
 
-		get(this: { [KEY_VALUE_CELLS]?: Map<string, CellxCell> }): any {
+		get(this: { [KEY_VALUE_CELLS]?: Map<string, Cell> }): any {
 			if (!(this[KEY_VALUE_CELLS] || (this[KEY_VALUE_CELLS] = new Map())).has(propName!)) {
 				let valueCell = this[propName + 'Cell'];
 				let valueCell_ =
-					valueCell instanceof CellxCell
+					valueCell instanceof Cell
 						? valueCell
-						: new CellxCell(
+						: new Cell(
 								propDesc &&
 									(propDesc.get ||
 										((propDesc as any).initializer
@@ -90,15 +94,15 @@ export function Cell<T, M>(
 
 		set:
 			(propDesc && propDesc.set) ||
-			function(this: { [KEY_VALUE_CELLS]?: Map<string, CellxCell> }, value: any) {
+			function(this: { [KEY_VALUE_CELLS]?: Map<string, Cell> }, value: any) {
 				if ((this[KEY_VALUE_CELLS] || (this[KEY_VALUE_CELLS] = new Map())).has(propName!)) {
 					this[KEY_VALUE_CELLS]!.get(propName!)!.set(value);
 				} else if (propDesc) {
 					let valueCell = this[propName + 'Cell'];
 					let valueCell_ =
-						valueCell instanceof CellxCell
+						valueCell instanceof Cell
 							? valueCell
-							: new CellxCell(
+							: new Cell(
 									propDesc.get ||
 										((propDesc as any).initializer
 											? (propDesc as any).initializer()
@@ -131,9 +135,9 @@ export function Cell<T, M>(
 					let isFunction = typeof value == 'function';
 					let valueCell = this[propName + 'Cell'];
 					let valueCell_ =
-						valueCell instanceof CellxCell
+						valueCell instanceof Cell
 							? valueCell
-							: new CellxCell(
+							: new Cell(
 									isFunction ? value : undefined,
 									options
 										? Object.assign(
@@ -166,7 +170,7 @@ export function Cell<T, M>(
 	};
 }
 
-export { Cell as cell };
+export { Reactive as reactive };
 
 export function Observable<T = any>(
 	target: Object,
@@ -194,7 +198,7 @@ export function Observable<T, M>(
 		throw new TypeError('Invalid descriptor of observable property');
 	}
 
-	return (Cell as any)(targetOrOptions, propName as string, propDesc, options);
+	return (Reactive as any)(targetOrOptions, propName as string, propDesc, options);
 }
 
 export { Observable as observable };
@@ -222,7 +226,7 @@ export function Computed<T, M>(
 		throw new TypeError('Invalid descriptor of computed property');
 	}
 
-	propDesc = (Cell as any)(targetOrOptions, propName as string, propDesc, options);
+	propDesc = (Reactive as any)(targetOrOptions, propName as string, propDesc, options);
 	(propDesc as PropertyDescriptor).enumerable = false;
 
 	return propDesc;
