@@ -4,9 +4,9 @@
 	(global = global || self, factory(global['cellx-decorators'] = {}, global.cellx));
 }(this, (function (exports, cellx) { 'use strict';
 
-	function Cell(targetOrOptions, propName, propDesc, options) {
+	function Reactive(targetOrOptions, propName, propDesc, options) {
 	    if (arguments.length == 1) {
-	        return (target, propName, propDesc) => Cell(target, propName, propDesc, targetOrOptions);
+	        return (target, propName, propDesc) => Reactive(target, propName, propDesc, targetOrOptions);
 	    }
 	    let constr = targetOrOptions.constructor;
 	    let debugKey = (constr != Object && constr != Function && constr.name ? constr.name + '#' : '') + propName;
@@ -104,7 +104,7 @@
 	        (propDesc.get || (propDesc.value !== undefined && typeof propDesc.value == 'function'))) {
 	        throw new TypeError('Invalid descriptor of observable property');
 	    }
-	    return Cell(targetOrOptions, propName, propDesc, options);
+	    return Reactive(targetOrOptions, propName, propDesc, options);
 	}
 	function Computed(targetOrOptions, propName, propDesc, options) {
 	    if (arguments.length == 1) {
@@ -113,17 +113,17 @@
 	    if (propDesc && propDesc.value !== undefined && typeof propDesc.value != 'function') {
 	        throw new TypeError('Invalid descriptor of computed property');
 	    }
-	    propDesc = Cell(targetOrOptions, propName, propDesc, options);
+	    propDesc = Reactive(targetOrOptions, propName, propDesc, options);
 	    propDesc.enumerable = false;
 	    return propDesc;
 	}
 
-	exports.Cell = Cell;
 	exports.Computed = Computed;
 	exports.Observable = Observable;
-	exports.cell = Cell;
+	exports.Reactive = Reactive;
 	exports.computed = Computed;
 	exports.observable = Observable;
+	exports.reactive = Reactive;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 

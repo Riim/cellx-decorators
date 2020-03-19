@@ -25,9 +25,9 @@ import { ICellOptions } from 'cellx';
  *   get: function ()
  *   set: undefined }
  */
-export declare function Cell<T = any>(target: Object, propName: string, propDesc?: PropertyDescriptor): any;
-export declare function Cell<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propName: string, propDesc?: PropertyDescriptor) => any;
-export { Cell as cell };
+export declare function Reactive<T = any>(target: Object, propName: string, propDesc?: PropertyDescriptor): any;
+export declare function Reactive<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propName: string, propDesc?: PropertyDescriptor) => any;
+export { Reactive as reactive };
 export declare function Observable<T = any>(target: Object, propName: string, propDesc?: PropertyDescriptor): any;
 export declare function Observable<T = any, M = any>(options: ICellOptions<T, M>): (target: Object, propName: string, propDesc?: PropertyDescriptor) => any;
 export { Observable as observable };
