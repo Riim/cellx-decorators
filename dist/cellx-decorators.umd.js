@@ -1,7 +1,7 @@
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('cellx')) :
 	typeof define === 'function' && define.amd ? define(['exports', 'cellx'], factory) :
-	(global = global || self, factory(global['cellx-decorators'] = {}, global.cellx));
+	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global['cellx-decorators'] = {}, global.cellx));
 }(this, (function (exports, cellx) { 'use strict';
 
 	function Reactive(targetOrOptions, propName, propDesc, options) {

@@ -1,6 +1,6 @@
 {
   "name": "cellx-decorators",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "",
   "type": "commonjs",
   "main": "dist/cellx-decorators.umd.js",
