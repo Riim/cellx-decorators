@@ -16,6 +16,6 @@
 		"target": "es2017"
 	},
 	"files": [
-		"src/index.ts"
+		"src/cellx-decorators.ts"
 	]
 }
