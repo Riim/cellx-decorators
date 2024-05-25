@@ -1,13 +1,10 @@
 cellx-decorators
 ================
 
-[ES.Next decorators](https://github.com/wycats/javascript-decorators) for [cellx](https://github.com/Riim/cellx).
-
 ### Installation
 
 ```
-npm install babel-plugin-transform-decorators-legacy --save-dev
-npm install cellx-decorators --save
+npm i -S cellx-decorators
 ```
 
 ### Usage
@@ -46,28 +43,4 @@ console.log(u.formattedPhone);
 u.formattedPhone = '+7 (916) 765-43-21';
 console.log(u.phone);
 // => '79167654321'
-```
-
-### Webpack config
-
-```js
-module.exports = {
-    module: {
-        loaders: [
-            {
-                test: /\.js$/,
-                exclude: /(?:node_modules|bower_components)/,
-                loader: 'babel',
-                query: {
-                    presets: ['es2015'],
-                    plugins: [
-                        'transform-decorators-legacy',
-                        'transform-class-properties'
-                    ]
-                }
-            }
-        ]
-    }
-};
-
 ```

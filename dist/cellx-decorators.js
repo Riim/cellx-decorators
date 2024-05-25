@@ -1,117 +1,95 @@
-import { Cell, KEY_VALUE_CELLS } from 'cellx';
-export function Reactive(targetOrOptions, propName, propDesc, options) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.computed = exports.Computed = exports.observable = exports.Observable = exports.reactive = exports.Reactive = void 0;
+const cellx_1 = require("cellx");
+function Reactive(targetOrOptions, propName, propDesc, options) {
     if (arguments.length == 1) {
         return (target, propName, propDesc) => Reactive(target, propName, propDesc, targetOrOptions);
     }
-    let constr = targetOrOptions.constructor;
-    let debugKey = (constr != Object && constr != Function && constr.name ? constr.name + '#' : '') + propName;
+    let ctor = targetOrOptions.constructor;
+    let debugKey = (ctor != Object && ctor != Function && ctor.name ? ctor.name + '#' : '') + propName;
     return {
         configurable: true,
         enumerable: propDesc ? propDesc.enumerable : true,
         get() {
-            if (!(this[KEY_VALUE_CELLS] || (this[KEY_VALUE_CELLS] = new Map())).has(propName)) {
-                let valueCell = this[propName + 'Cell'];
-                let valueCell_ = valueCell instanceof Cell
-                    ? valueCell
-                    : new Cell(propDesc &&
-                        (propDesc.get ||
-                            (propDesc.initializer
-                                ? propDesc.initializer()
-                                : propDesc.value)), options
-                        ? Object.assign({
+            if (!(this[cellx_1.KEY_VALUE_CELLS] ?? (this[cellx_1.KEY_VALUE_CELLS] = new Map())).has(propName)) {
+                let propCellValue = this[propName + 'Cell'];
+                let valueCell = propCellValue instanceof cellx_1.Cell
+                    ? propCellValue
+                    : new cellx_1.Cell(propDesc && (propDesc.get || propDesc.value), options
+                        ? {
                             debugKey,
-                            context: options.context !== undefined
-                                ? options.context
-                                : this
-                        }, options)
+                            context: options.context ?? this,
+                            ...options
+                        }
                         : {
                             debugKey,
                             context: this
                         });
-                if (valueCell === null) {
-                    this[propName + 'Cell'] = valueCell_;
+                if (propCellValue === null) {
+                    this[propName + 'Cell'] = valueCell;
                 }
-                this[KEY_VALUE_CELLS].set(propName, valueCell_);
+                this[cellx_1.KEY_VALUE_CELLS].set(propName, valueCell);
             }
-            return this[KEY_VALUE_CELLS].get(propName).get();
+            return this[cellx_1.KEY_VALUE_CELLS].get(propName).get();
         },
-        set: (propDesc && propDesc.set) ||
+        set: propDesc?.set ??
             function (value) {
-                if ((this[KEY_VALUE_CELLS] || (this[KEY_VALUE_CELLS] = new Map())).has(propName)) {
-                    this[KEY_VALUE_CELLS].get(propName).set(value);
-                }
-                else if (propDesc) {
-                    let valueCell = this[propName + 'Cell'];
-                    let valueCell_ = valueCell instanceof Cell
-                        ? valueCell
-                        : new Cell(propDesc.get ||
-                            (propDesc.initializer
-                                ? propDesc.initializer()
-                                : propDesc.value), options
-                            ? Object.assign({
-                                debugKey,
-                                context: options.context !== undefined
-                                    ? options.context
-                                    : this
-                            }, options)
-                            : {
-                                debugKey,
-                                context: this
-                            });
-                    valueCell_.set(value);
-                    if (valueCell === null) {
-                        this[propName + 'Cell'] = valueCell_;
-                    }
-                    this[KEY_VALUE_CELLS].set(propName, valueCell_);
+                if ((this[cellx_1.KEY_VALUE_CELLS] ?? (this[cellx_1.KEY_VALUE_CELLS] = new Map())).has(propName)) {
+                    this[cellx_1.KEY_VALUE_CELLS].get(propName).set(value);
                 }
                 else {
-                    let isFunction = typeof value == 'function';
-                    let valueCell = this[propName + 'Cell'];
-                    let valueCell_ = valueCell instanceof Cell
-                        ? valueCell
-                        : new Cell(isFunction ? value : undefined, options
-                            ? Object.assign({
+                    let propCellValue = this[propName + 'Cell'];
+                    let valueCell;
+                    if (propCellValue instanceof cellx_1.Cell) {
+                        valueCell = propCellValue.set(value);
+                    }
+                    else {
+                        valueCell = new cellx_1.Cell(propDesc ? propDesc.get ?? propDesc.value : value, options
+                            ? {
                                 debugKey,
-                                context: options.context !== undefined
-                                    ? options.context
-                                    : this
-                            }, options)
+                                context: options.context ?? this,
+                                ...options
+                            }
                             : {
                                 debugKey,
                                 context: this
                             });
-                    if (!isFunction) {
-                        valueCell_.set(value);
+                        if (propDesc?.get) {
+                            valueCell.set(value);
+                        }
                     }
-                    if (valueCell === null) {
-                        this[propName + 'Cell'] = valueCell_;
+                    if (propCellValue === null) {
+                        this[propName + 'Cell'] = valueCell;
                     }
-                    this[KEY_VALUE_CELLS].set(propName, valueCell_);
+                    this[cellx_1.KEY_VALUE_CELLS].set(propName, valueCell);
                 }
             }
     };
 }
-export { Reactive as reactive };
-export function Observable(targetOrOptions, propName, propDesc, options) {
+exports.Reactive = Reactive;
+exports.reactive = Reactive;
+function Observable(targetOrOptions, propName, propDesc, options) {
     if (arguments.length == 1) {
         return (target, propName, propDesc) => Observable(target, propName, propDesc, targetOrOptions);
     }
-    if (propDesc &&
-        (propDesc.get || (propDesc.value !== undefined && typeof propDesc.value == 'function'))) {
-        throw new TypeError('Invalid descriptor of observable property');
+    if (propDesc && (propDesc.get || typeof propDesc.value == 'function')) {
+        throw TypeError('Invalid descriptor of observable property');
     }
     return Reactive(targetOrOptions, propName, propDesc, options);
 }
-export { Observable as observable };
-export function Computed(targetOrOptions, propName, propDesc, options) {
+exports.Observable = Observable;
+exports.observable = Observable;
+function Computed(targetOrOptions, propName, propDesc, options) {
     if (arguments.length == 1) {
         return (target, propName, propDesc) => Computed(target, propName, propDesc, targetOrOptions);
     }
-    if (propDesc && propDesc.value !== undefined && typeof propDesc.value != 'function') {
-        throw new TypeError('Invalid descriptor of computed property');
+    if (propDesc?.value !== undefined) {
+        throw TypeError('Invalid descriptor of computed property');
     }
     propDesc = Reactive(targetOrOptions, propName, propDesc, options);
     propDesc.enumerable = false;
     return propDesc;
 }
-export { Computed as computed };
+exports.Computed = Computed;
+exports.computed = Computed;

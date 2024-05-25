@@ -1,12 +1,12 @@
 {
   "name": "cellx-decorators",
-  "version": "1.6.3",
+  "version": "2.0.0",
   "description": "",
   "type": "commonjs",
-  "main": "dist/cellx-decorators.umd.js",
+  "main": "dist/cellx-decorators.js",
   "typings": "dist/cellx-decorators.d.ts",
   "scripts": {
-    "build": "rm -rf dist && tsc && rollup -c",
+    "build": "rm -rf dist && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,12 +20,12 @@
   },
   "homepage": "https://github.com/Riim/cellx-decorators#readme",
   "devDependencies": {
-    "rollup": "^2.1.0",
-    "rollup-plugin-tslint": "^0.2.2",
-    "rollup-plugin-typescript2": "^0.26.0",
-    "typescript": "^3.8.3"
+    "@typescript-eslint/parser": "7.10.0",
+    "eslint-plugin-github": "5.0.0-2",
+    "typescript": "5.4.5",
+    "typescript-eslint": "7.10.0"
   },
   "dependencies": {
-    "cellx": "^1.10.2"
+    "cellx": "2.0.0"
   }
 }

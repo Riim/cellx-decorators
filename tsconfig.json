@@ -1,19 +1,32 @@
 {
 	"compilerOptions": {
+		"alwaysStrict": true,
 		"declaration": true,
+		"esModuleInterop": true,
 		"experimentalDecorators": true,
-		"lib": ["es2017", "dom"],
-		"module": "es2015",
-		"moduleResolution": "node",
+		"importHelpers": true,
+		"moduleResolution": "Node",
 		"newLine": "lf",
-		"noImplicitAny": true,
+		"noEmitHelpers": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitAny": false,
+		"noImplicitOverride": true,
 		"noImplicitReturns": true,
+		"noImplicitThis": true,
+		"noPropertyAccessFromIndexSignature": true,
 		"noUnusedLocals": true,
-		"outDir": "dist",
+		"noUnusedParameters": false,
 		"preserveConstEnums": true,
+		"resolveJsonModule": true,
+		"strictBindCallApply": true,
+		"strictFunctionTypes": true,
 		"strictNullChecks": true,
-		"suppressImplicitAnyIndexErrors": true,
-		"target": "es2017"
+		"strictPropertyInitialization": false,
+		"target": "ES2020",
+
+		"lib": ["ES2019", "DOM"],
+		"module": "CommonJS",
+		"outDir": "dist"
 	},
 	"files": [
 		"src/cellx-decorators.ts"
